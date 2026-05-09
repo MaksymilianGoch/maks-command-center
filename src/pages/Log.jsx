@@ -31,7 +31,7 @@ function Field({ label, placeholder, value, onChange, rows = 2 }) {
   return (
     <div>
       <label className="text-xs text-[#9a9aaa] uppercase tracking-wide block mb-1.5">{label}</label>
-      <textarea className="w-full bg-[#0a0b10] border border-[#1e2030] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#1e2030] focus:outline-none focus:border-[#7c6af7] resize-none" rows={rows} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} />
+      <textarea className="w-full bg-[#080810] border border-[#1e1e2e] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#2a2a3e] focus:outline-none focus:border-[#7c6af7] resize-none" rows={rows} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   )
 }
@@ -77,7 +77,7 @@ export default function Log({ logs, setLogs }) {
         </div>
 
         {/* Health */}
-        <div className="border-t border-[#1e2030] pt-4 mb-4">
+        <div className="border-t border-[#1e1e2e] pt-4 mb-4">
           <div className="text-xs text-[#9a9aaa] uppercase tracking-widest mb-3">Health</div>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -87,7 +87,7 @@ export default function Log({ logs, setLogs }) {
               </div>
               <div className="flex items-center gap-2">
                 <input type="number" min={0} max={12} step={0.5}
-                  className="w-16 bg-[#0a0b10] border border-[#1e2030] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-[#7c6af7] text-center"
+                  className="w-16 bg-[#080810] border border-[#1e1e2e] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-[#7c6af7] text-center"
                   value={form.sleepHours} onChange={(e) => s('sleepHours', +e.target.value)} />
                 <span className="text-xs text-[#9a9aaa]">h</span>
               </div>
@@ -100,7 +100,7 @@ export default function Log({ logs, setLogs }) {
               {form.workout && (
                 <div className="flex items-center gap-2">
                   <input type="number" min={0} max={180}
-                    className="w-16 bg-[#0a0b10] border border-[#1e2030] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-[#7c6af7] text-center"
+                    className="w-16 bg-[#080810] border border-[#1e1e2e] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-[#7c6af7] text-center"
                     value={form.workoutMin} onChange={(e) => s('workoutMin', +e.target.value)} />
                   <span className="text-xs text-[#9a9aaa]">min</span>
                 </div>
@@ -116,7 +116,7 @@ export default function Log({ logs, setLogs }) {
                         ? q === 'gut' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
                           : q === 'ok' ? 'bg-amber-500/20 border-amber-500 text-amber-400'
                           : 'bg-red-500/20 border-red-500 text-red-400'
-                        : 'bg-[#0a0b10] border-[#1e2030] text-[#9a9aaa]'
+                        : 'bg-[#080810] border-[#1e1e2e] text-[#9a9aaa]'
                     }`}>{q}
                   </button>
                 ))}
@@ -126,19 +126,19 @@ export default function Log({ logs, setLogs }) {
         </div>
 
         {/* Learning */}
-        <div className="border-t border-[#1e2030] pt-4 mb-4">
+        <div className="border-t border-[#1e1e2e] pt-4 mb-4">
           <div className="text-xs text-[#9a9aaa] uppercase tracking-widest mb-3">Learning</div>
           <div className="space-y-3">
             <div>
               <div className="text-xs text-[#9a9aaa] mb-1.5">Tool</div>
               <div className="flex gap-2 flex-wrap">
                 <button onClick={() => s('learningTool', '')}
-                  className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${!form.learningTool ? 'bg-[#1e2030] border-[#9a9aaa] text-white' : 'bg-[#0a0b10] border-[#1e2030] text-[#9a9aaa]'}`}>
+                  className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${!form.learningTool ? 'bg-[#1e2030] border-[#9a9aaa] text-white' : 'bg-[#080810] border-[#1e1e2e] text-[#9a9aaa]'}`}>
                   Keines
                 </button>
                 {TOOLS.map((t) => (
                   <button key={t} onClick={() => s('learningTool', t)}
-                    className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${form.learningTool === t ? 'bg-[#7c6af7]/20 border-[#7c6af7] text-[#7c6af7]' : 'bg-[#0a0b10] border-[#1e2030] text-[#9a9aaa]'}`}>
+                    className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${form.learningTool === t ? 'bg-[#7c6af7]/20 border-[#7c6af7] text-[#7c6af7]' : 'bg-[#080810] border-[#1e1e2e] text-[#9a9aaa]'}`}>
                     {t}
                   </button>
                 ))}
@@ -146,7 +146,7 @@ export default function Log({ logs, setLogs }) {
             </div>
             {form.learningTool && (
               <>
-                <input className="w-full bg-[#0a0b10] border border-[#1e2030] rounded-xl px-3 py-2 text-sm text-white placeholder-[#1e2030] focus:outline-none focus:border-[#7c6af7]"
+                <input className="w-full bg-[#080810] border border-[#1e1e2e] rounded-xl px-3 py-2 text-sm text-white placeholder-[#2a2a3e] focus:outline-none focus:border-[#7c6af7]"
                   placeholder="Thema / Was gelernt?" value={form.learningTopic} onChange={(e) => s('learningTopic', e.target.value)} />
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
@@ -155,14 +155,14 @@ export default function Log({ logs, setLogs }) {
                   </div>
                   <div className="flex items-center gap-2 ml-auto">
                     <input type="number" min={0} max={300}
-                      className="w-16 bg-[#0a0b10] border border-[#1e2030] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-[#7c6af7] text-center"
+                      className="w-16 bg-[#080810] border border-[#1e1e2e] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-[#7c6af7] text-center"
                       value={form.learningMin} onChange={(e) => s('learningMin', +e.target.value)} />
                     <span className="text-xs text-[#9a9aaa]">min</span>
                   </div>
                   <div className="flex gap-1">
                     {['aktiv', 'passiv'].map((m) => (
                       <button key={m} onClick={() => s('learningMode', m)}
-                        className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${form.learningMode === m ? m === 'aktiv' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-amber-500/20 border-amber-500 text-amber-400' : 'bg-[#0a0b10] border-[#1e2030] text-[#9a9aaa]'}`}>
+                        className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${form.learningMode === m ? m === 'aktiv' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-amber-500/20 border-amber-500 text-amber-400' : 'bg-[#080810] border-[#1e1e2e] text-[#9a9aaa]'}`}>
                         {m}
                       </button>
                     ))}
@@ -174,7 +174,7 @@ export default function Log({ logs, setLogs }) {
         </div>
 
         {/* Reflexion */}
-        <div className="border-t border-[#1e2030] pt-4 space-y-3">
+        <div className="border-t border-[#1e1e2e] pt-4 space-y-3">
           <div className="text-xs text-[#9a9aaa] uppercase tracking-widest mb-1">Reflexion</div>
           <Field label="Was war stark?" placeholder="Erfolge, gute Entscheidungen …" value={form.strongPoints} onChange={(v) => s('strongPoints', v)} />
           <Field label="Was war schwach?" placeholder="Fehler, Ablenkungen …" value={form.weakPoints} onChange={(v) => s('weakPoints', v)} />
@@ -204,7 +204,7 @@ export default function Log({ logs, setLogs }) {
                   </div>
                 </div>
                 {expanded === l.date && (
-                  <div className="mt-3 pt-3 border-t border-[#1e2030] space-y-1.5">
+                  <div className="mt-3 pt-3 border-t border-[#1e1e2e] space-y-1.5">
                     {l.strongPoints && <p className="text-xs text-[#9a9aaa]"><span className="text-emerald-400">+ </span>{l.strongPoints}</p>}
                     {l.weakPoints && <p className="text-xs text-[#9a9aaa]"><span className="text-red-400">− </span>{l.weakPoints}</p>}
                     {l.tomorrowFocus && <p className="text-xs text-[#9a9aaa]"><span className="text-[#7c6af7]">→ </span>{l.tomorrowFocus}</p>}

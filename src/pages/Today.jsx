@@ -94,7 +94,7 @@ export default function Today({ tasks, setTasks }) {
         <Card>
           <div className="text-xs text-[#9a9aaa] uppercase tracking-widest mb-3">+ Aufgabe hinzufügen</div>
           <input
-            className="w-full bg-[#0a0b10] border border-[#1e2030] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#1e2030] focus:outline-none focus:border-[#7c6af7] mb-3"
+            className="w-full bg-[#080810] border border-[#1e1e2e] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#2a2a3e] focus:outline-none focus:border-[#7c6af7] mb-3"
             placeholder="Was muss heute erledigt werden?"
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
