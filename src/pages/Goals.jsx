@@ -47,7 +47,7 @@ export default function Goals({ goals, setGoals }) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Goals</h1>
-          <p className="text-sm text-[#b0b7c2] mt-1">{goals.filter((g) => g.status === 'active').length} aktive Ziele</p>
+          <p className="text-sm text-[#9a9aaa] mt-1">{goals.filter((g) => g.status === 'active').length} aktive Ziele</p>
         </div>
         <Button onClick={() => { setForm(emptyForm); setEditId(null); setShowModal(true) }}>
           + Ziel
@@ -60,7 +60,7 @@ export default function Goals({ goals, setGoals }) {
             key={s}
             onClick={() => setFilter(s)}
             className={`px-3 py-1.5 text-xs rounded-xl border transition-colors ${
-              filter === s ? 'bg-[#4f86f7]/15 border-[#4f86f7]/50 text-[#4f86f7]' : 'border-[#323640] text-[#b0b7c2] hover:border-[#b0b7c2]'
+              filter === s ? 'bg-[#7c6af7]/15 border-[#7c6af7]/50 text-[#7c6af7]' : 'border-[#1e2030] text-[#9a9aaa] hover:border-[#9a9aaa]'
             }`}
           >
             {s}
@@ -70,8 +70,8 @@ export default function Goals({ goals, setGoals }) {
 
       {filtered.length === 0 ? (
         <Card className="text-center py-12">
-          <div className="text-[#323640] text-4xl mb-3">◈</div>
-          <p className="text-[#b0b7c2]">Keine Ziele in dieser Kategorie.</p>
+          <div className="text-[#1e2030] text-4xl mb-3">◈</div>
+          <p className="text-[#9a9aaa]">Keine Ziele in dieser Kategorie.</p>
         </Card>
       ) : (
         <div className="space-y-4">
@@ -96,20 +96,20 @@ export default function Goals({ goals, setGoals }) {
 
                 <div className="mb-3">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-[#b0b7c2]">Fortschritt</span>
+                    <span className="text-xs text-[#9a9aaa]">Fortschritt</span>
                     <span className="text-xs text-white">{g.currentValue} / {g.targetValue} {g.unit} ({pct}%)</span>
                   </div>
-                  <ProgressBar value={g.currentValue} max={g.targetValue} colorClass={pct >= 100 ? 'bg-emerald-500' : 'bg-[#4f86f7]'} />
+                  <ProgressBar value={g.currentValue} max={g.targetValue} colorClass={pct >= 100 ? 'bg-emerald-500' : 'bg-[#7c6af7]'} />
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs text-[#b0b7c2] mb-0.5">Nächste Aktion</div>
+                    <div className="text-xs text-[#9a9aaa] mb-0.5">Nächste Aktion</div>
                     <div className="text-xs text-white truncate">{g.nextAction || '—'}</div>
                   </div>
                   {days !== null && (
                     <div className="text-right flex-shrink-0">
-                      <div className="text-xs text-[#b0b7c2]">Deadline</div>
+                      <div className="text-xs text-[#9a9aaa]">Deadline</div>
                       <div className={`text-xs font-medium ${days < 0 ? 'text-red-400' : days < 14 ? 'text-amber-400' : 'text-white'}`}>
                         {days < 0 ? `${Math.abs(days)}d überfällig` : `${days}d`}
                       </div>
@@ -118,7 +118,7 @@ export default function Goals({ goals, setGoals }) {
                   <div className="flex-shrink-0">
                     <input
                       type="number"
-                      className="w-20 bg-[#191a1f] border border-[#323640] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-[#4f86f7]"
+                      className="w-20 bg-[#0a0b10] border border-[#1e2030] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-[#7c6af7]"
                       value={g.currentValue}
                       onChange={(e) => updateProgress(g.id, e.target.value)}
                     />
@@ -142,10 +142,10 @@ export default function Goals({ goals, setGoals }) {
               { key: 'nextAction', label: 'Nächste Aktion', placeholder: 'Konkreter nächster Schritt', type: 'text' },
             ].map(({ key, label, placeholder, type }) => (
               <div key={key}>
-                <label className="text-xs text-[#b0b7c2] uppercase tracking-wide block mb-1.5">{label}</label>
+                <label className="text-xs text-[#9a9aaa] uppercase tracking-wide block mb-1.5">{label}</label>
                 <input
                   type={type}
-                  className="w-full bg-[#191a1f] border border-[#323640] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#323640] focus:outline-none focus:border-[#4f86f7]"
+                  className="w-full bg-[#0a0b10] border border-[#1e2030] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#1e2030] focus:outline-none focus:border-[#7c6af7]"
                   placeholder={placeholder}
                   value={form[key]}
                   onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))}
@@ -153,22 +153,22 @@ export default function Goals({ goals, setGoals }) {
               </div>
             ))}
             <div>
-              <label className="text-xs text-[#b0b7c2] uppercase tracking-wide block mb-1.5">Kategorie</label>
+              <label className="text-xs text-[#9a9aaa] uppercase tracking-wide block mb-1.5">Kategorie</label>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map((cat) => (
                   <button key={cat} onClick={() => setForm((p) => ({ ...p, category: cat }))}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${form.category === cat ? 'bg-[#4f86f7]/20 border-[#4f86f7] text-[#4f86f7]' : 'bg-[#191a1f] border-[#323640] text-[#b0b7c2] hover:border-[#b0b7c2]'}`}>
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${form.category === cat ? 'bg-[#7c6af7]/20 border-[#7c6af7] text-[#7c6af7]' : 'bg-[#0a0b10] border-[#1e2030] text-[#9a9aaa] hover:border-[#9a9aaa]'}`}>
                     {cat}
                   </button>
                 ))}
               </div>
             </div>
             <div>
-              <label className="text-xs text-[#b0b7c2] uppercase tracking-wide block mb-1.5">Status</label>
+              <label className="text-xs text-[#9a9aaa] uppercase tracking-wide block mb-1.5">Status</label>
               <div className="flex gap-2">
                 {STATUSES.map((s) => (
                   <button key={s} onClick={() => setForm((p) => ({ ...p, status: s }))}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${form.status === s ? 'bg-[#4f86f7]/20 border-[#4f86f7] text-[#4f86f7]' : 'bg-[#191a1f] border-[#323640] text-[#b0b7c2] hover:border-[#b0b7c2]'}`}>
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${form.status === s ? 'bg-[#7c6af7]/20 border-[#7c6af7] text-[#7c6af7]' : 'bg-[#0a0b10] border-[#1e2030] text-[#9a9aaa] hover:border-[#9a9aaa]'}`}>
                     {s}
                   </button>
                 ))}

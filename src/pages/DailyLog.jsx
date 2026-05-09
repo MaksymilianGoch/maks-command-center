@@ -8,15 +8,15 @@ function LevelSlider({ label, value, onChange }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <label className="text-xs text-[#b0b7c2] uppercase tracking-wide">{label}</label>
+        <label className="text-xs text-[#9a9aaa] uppercase tracking-wide">{label}</label>
         <span className={`text-2xl font-bold ${color}`}>{value}</span>
       </div>
       <input
         type="range" min={1} max={10} value={value}
         onChange={(e) => onChange(parseInt(e.target.value))}
-        className="w-full accent-[#4f86f7]"
+        className="w-full accent-[#7c6af7]"
       />
-      <div className="flex justify-between text-xs text-[#323640] mt-1">
+      <div className="flex justify-between text-xs text-[#1e2030] mt-1">
         <span>1</span><span>5</span><span>10</span>
       </div>
     </div>
@@ -26,9 +26,9 @@ function LevelSlider({ label, value, onChange }) {
 function TextArea({ label, placeholder, value, onChange }) {
   return (
     <div>
-      <label className="text-xs text-[#b0b7c2] uppercase tracking-wide block mb-1.5">{label}</label>
+      <label className="text-xs text-[#9a9aaa] uppercase tracking-wide block mb-1.5">{label}</label>
       <textarea
-        className="w-full bg-[#191a1f] border border-[#323640] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#323640] focus:outline-none focus:border-[#4f86f7] resize-none"
+        className="w-full bg-[#0a0b10] border border-[#1e2030] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#1e2030] focus:outline-none focus:border-[#7c6af7] resize-none"
         rows={3} placeholder={placeholder} value={value}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -62,7 +62,7 @@ export default function DailyLog({ dailyLogs, setDailyLogs }) {
     <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Daily Log</h1>
-        <p className="text-sm text-[#b0b7c2] mt-1">
+        <p className="text-sm text-[#9a9aaa] mt-1">
           {new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}
         </p>
       </div>
@@ -95,18 +95,18 @@ export default function DailyLog({ dailyLogs, setDailyLogs }) {
               <Card key={l.id} onClick={() => setExpanded(expanded === l.date ? null : l.date)}>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-white">{formatDate(l.date)}</span>
-                  <div className="flex gap-4 text-xs text-[#b0b7c2]">
+                  <div className="flex gap-4 text-xs text-[#9a9aaa]">
                     <span>Energie: <span className="text-white">{l.energyLevel}/10</span></span>
                     <span>Disziplin: <span className="text-white">{l.disciplineLevel}/10</span></span>
-                    <span className="text-[#323640]">{expanded === l.date ? '▲' : '▼'}</span>
+                    <span className="text-[#1e2030]">{expanded === l.date ? '▲' : '▼'}</span>
                   </div>
                 </div>
                 {expanded === l.date && (
-                  <div className="mt-3 pt-3 border-t border-[#323640] space-y-2">
-                    {l.note && <p className="text-xs text-[#b0b7c2]">{l.note}</p>}
-                    {l.strongPoints && <div><span className="text-xs text-emerald-400 font-medium">+ </span><span className="text-xs text-[#b0b7c2]">{l.strongPoints}</span></div>}
-                    {l.weakPoints && <div><span className="text-xs text-red-400 font-medium">− </span><span className="text-xs text-[#b0b7c2]">{l.weakPoints}</span></div>}
-                    {l.tomorrowFocus && <div><span className="text-xs text-[#4f86f7] font-medium">→ </span><span className="text-xs text-[#b0b7c2]">{l.tomorrowFocus}</span></div>}
+                  <div className="mt-3 pt-3 border-t border-[#1e2030] space-y-2">
+                    {l.note && <p className="text-xs text-[#9a9aaa]">{l.note}</p>}
+                    {l.strongPoints && <div><span className="text-xs text-emerald-400 font-medium">+ </span><span className="text-xs text-[#9a9aaa]">{l.strongPoints}</span></div>}
+                    {l.weakPoints && <div><span className="text-xs text-red-400 font-medium">− </span><span className="text-xs text-[#9a9aaa]">{l.weakPoints}</span></div>}
+                    {l.tomorrowFocus && <div><span className="text-xs text-[#7c6af7] font-medium">→ </span><span className="text-xs text-[#9a9aaa]">{l.tomorrowFocus}</span></div>}
                   </div>
                 )}
               </Card>
