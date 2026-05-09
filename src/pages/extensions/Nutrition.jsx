@@ -28,17 +28,35 @@ const LOCAL_FOODS = [
   { name: 'Spinat', cal: 23, p: 2.9, c: 3.6, f: 0.4, unit: 'g', unitG: 100 },
 ]
 
-// Parse meal description: "2 Eier, 1 Scheibe Vollkornbrot, 1 Tomate"
+// Parse meal description
+// Unterstützt:
+//   Gramm:  "150g Hähnchenbrust", "200 g Lachs", "50gramm Mandeln"
+//   ml:     "200ml Milch"
+//   Stück:  "2 Eier", "1 Banane", "3 Scheiben Vollkornbrot"
 function parseMeal(description) {
   const parts = description.split(/[,;]+/).map(s => s.trim()).filter(Boolean)
   let totalCal = 0, totalP = 0, totalC = 0, totalF = 0
   const matched = []
 
   parts.forEach(part => {
-    const numMatch = part.match(/^(\d+\.?\d*)\s*(.+)/)
-    if (!numMatch) return
-    const qty = parseFloat(numMatch[1])
-    const foodName = numMatch[2].toLowerCase().trim()
+    // Versuche Gramm/ml-Pattern: "150g ...", "150 g ...", "150ml ...", "150gramm ..."
+    const gramMatch = part.match(/^(\d+\.?\d*)\s*(g|gramm|gram|ml|milliliter)\s+(.+)/i)
+    // Versuche Stück-Pattern: "2 Eier", "1 Scheibe Vollkornbrot"
+    const unitMatch = part.match(/^(\d+\.?\d*)\s+(.+)/)
+
+    let qty, grams, foodName, isGramBased = false
+
+    if (gramMatch) {
+      qty = parseFloat(gramMatch[1])
+      grams = qty  // Gramm direkt angegeben
+      foodName = gramMatch[3].toLowerCase().trim()
+      isGramBased = true
+    } else if (unitMatch) {
+      qty = parseFloat(unitMatch[1])
+      foodName = unitMatch[2].toLowerCase().trim()
+    } else {
+      return
+    }
 
     const found = LOCAL_FOODS.find(f =>
       f.name.toLowerCase() === foodName ||
@@ -46,13 +64,16 @@ function parseMeal(description) {
       f.name.toLowerCase().includes(foodName.split(' ')[0])
     )
     if (found) {
-      const factor = (qty * found.unitG) / 100
+      // Gramm-basiert: factor = grams / 100
+      // Stück-basiert: factor = (qty × unitG) / 100
+      const factor = isGramBased ? grams / 100 : (qty * found.unitG) / 100
+      const displayUnit = isGramBased ? `${grams}g` : `${qty} ${found.unit}`
       const cal = Math.round(found.cal * factor)
       const p = Math.round(found.p * factor * 10) / 10
       const c = Math.round(found.c * factor * 10) / 10
       const f = Math.round(found.f * factor * 10) / 10
       totalCal += cal; totalP += p; totalC += c; totalF += f
-      matched.push({ name: found.name, qty, unit: found.unit, cal, p, c, f })
+      matched.push({ name: found.name, qty, unit: displayUnit, cal, p, c, f })
     }
   })
 
@@ -148,11 +169,18 @@ export default function Nutrition() {
 
       {/* Mahlzeit eingeben */}
       <div className="glass-card rounded-2xl p-5 space-y-4">
-        <p className="text-sm font-semibold text-on-surface">Mahlzeit analysieren</p>
+        <div>
+          <p className="text-sm font-semibold text-on-surface mb-1">Mahlzeit analysieren</p>
+          <p className="text-xs text-on-surface-variant">
+            Stück: <span className="text-primary">2 Eier</span> ·
+            Gramm: <span className="text-primary">150g Hähnchenbrust</span> ·
+            ml: <span className="text-primary">200ml Milch</span>
+          </p>
+        </div>
         <textarea
           className="w-full bg-surface-container-low border border-white/10 rounded-2xl px-4 py-3 text-sm text-on-surface placeholder-outline focus:outline-none focus:border-primary/50 resize-none"
           rows={3}
-          placeholder="z.B.: 2 Eier, 1 Scheibe Vollkornbrot, 1 Tomate"
+          placeholder="z.B.: 2 Eier, 150g Hähnchenbrust, 1 Tomate, 200ml Milch"
           value={input}
           onChange={(e) => { setInput(e.target.value); setPreview(null) }}
         />
@@ -225,14 +253,20 @@ export default function Nutrition() {
 
       {/* Schnellauswahl */}
       <div className="glass-card rounded-2xl p-4">
-        <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-3">Häufige Lebensmittel</p>
+        <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-3">Schnellauswahl — tippen zum Hinzufügen</p>
         <div className="flex flex-wrap gap-2">
-          {LOCAL_FOODS.slice(0, 8).map((food) => (
-            <button key={food.name} onClick={() => setInput(prev => prev ? `${prev}, 1 ${food.name}` : `1 ${food.name}`)}
+          {LOCAL_FOODS.map((food) => {
+            const defaultStr = food.unit === 'g' || food.unit === 'ml'
+              ? `100g ${food.name}`
+              : `1 ${food.name}`
+            return (
+            <button key={food.name} onClick={() => setInput(prev => prev ? `${prev}, ${defaultStr}` : defaultStr)}
               className="px-3 py-1.5 bg-surface-container text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs transition-all">
-              {food.name}
+              <span className="font-medium">{food.name}</span>
+              <span className="opacity-50 ml-1 text-[10px]">{food.unit === 'g' || food.unit === 'ml' ? '100g' : `1 ${food.unit}`}</span>
             </button>
-          ))}
+            )
+          })}
         </div>
       </div>
     </div>
