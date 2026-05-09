@@ -4,6 +4,8 @@ import { calculateStreak } from '../utils/habitUtils'
 import Toggle from '../components/Toggle'
 import Button from '../components/Button'
 import RingProgress from '../components/RingProgress'
+import QuoteBanner from '../components/QuoteBanner'
+import { QUOTES } from '../data/quotes'
 
 const TOOLS = ['n8n', 'claude-code', 'cs-basics']
 
@@ -46,6 +48,8 @@ export default function Log({ logs, setLogs, habits }) {
         <p className="text-xs font-medium text-primary uppercase tracking-[0.2em]">Daily Log</p>
         <h1 className="text-3xl font-bold text-on-surface">Stay sharp, Maks.</h1>
       </section>
+
+      <QuoteBanner quote={QUOTES.log} />
 
       {/* Streak + Today Status */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">

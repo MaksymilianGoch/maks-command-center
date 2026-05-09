@@ -3,6 +3,8 @@ import { today } from '../utils/dateUtils'
 import Toggle from '../components/Toggle'
 import Button from '../components/Button'
 import Card from '../components/Card'
+import QuoteBanner from '../components/QuoteBanner'
+import { QUOTES } from '../data/quotes'
 
 export default function Today({ tasks, setTasks }) {
   const todayStr = today()
@@ -37,6 +39,8 @@ export default function Today({ tasks, setTasks }) {
           <p className="text-on-surface-variant mt-1">{doneCount}/{todayTasks.length} erledigt</p>
         )}
       </section>
+
+      <QuoteBanner quote={QUOTES.today} />
 
       {/* ONE Thing */}
       <div>

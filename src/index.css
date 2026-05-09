@@ -36,12 +36,44 @@ body {
   min-height: 100dvh;
 }
 
+/* ===== LIGHT MODE ===== */
+[data-theme="light"] {
+  --color-background: #f4f6fb;
+  --color-surface: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f0f2f8;
+  --color-surface-container: #e8ebf4;
+  --color-surface-container-high: #dde0ec;
+  --color-surface-container-highest: #d2d5e4;
+  --color-surface-variant: #dde3f3;
+  --color-on-surface: #191b23;
+  --color-on-surface-variant: #44475a;
+  --color-primary: #005db8;
+  --color-primary-container: #aac7ff;
+  --color-on-primary: #ffffff;
+  --color-outline: #71748a;
+  --color-outline-variant: #c1c6d8;
+}
+
+[data-theme="light"] body {
+  background-color: #f4f6fb;
+  color: #191b23;
+}
+
+[data-theme="light"] .glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ===== GLASS CARD ===== */
 .glass-card {
   background: rgba(28, 32, 39, 0.8);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* ===== MATERIAL ICONS ===== */
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   font-family: 'Material Symbols Outlined';
@@ -51,6 +83,18 @@ body {
   vertical-align: middle;
 }
 
+/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: #10131b; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #31353d; border-radius: 2px; }
+
+/* ===== MOBILE SAFE AREA ===== */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  nav.fixed.bottom-0 {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(4rem + env(safe-area-inset-bottom));
+  }
+  main {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}

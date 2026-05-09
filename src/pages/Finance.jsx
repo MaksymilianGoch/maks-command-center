@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { today } from '../utils/dateUtils'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
+import QuoteBanner from '../components/QuoteBanner'
+import { QUOTES } from '../data/quotes'
 
 const TARGET = 500000
 
@@ -78,6 +80,8 @@ export default function Finance({ finance, setFinance }) {
           <Button size="sm" onClick={() => setShowModal(true)}>Update</Button>
         </div>
       </section>
+
+      <QuoteBanner quote={QUOTES.finance} />
 
       {/* Income / Expenses */}
       <div className="grid grid-cols-2 gap-4">

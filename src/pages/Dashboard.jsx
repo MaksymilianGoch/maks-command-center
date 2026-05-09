@@ -2,8 +2,10 @@ import { today } from '../utils/dateUtils'
 import { calculateStreak, isCompletedToday } from '../utils/habitUtils'
 import RingProgress from '../components/RingProgress'
 import ProgressBar from '../components/ProgressBar'
+import QuoteBanner from '../components/QuoteBanner'
+import { QUOTES } from '../data/quotes'
 
-const QUOTES = [
+const DAILY_QUOTES = [
   'Complexity is the enemy of execution. Simple is where the magic lives.',
   'Disziplin ist Freiheit.',
   'Du bist eine Stimme, nicht ein Echo.',
@@ -21,7 +23,7 @@ export default function Dashboard({ habits, tasks, finance, logs, onNavigate }) 
   const todayStr = today()
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Guten Morgen' : hour < 18 ? 'Guten Tag' : 'Guten Abend'
-  const quote = QUOTES[new Date().getDay() % QUOTES.length]
+  const quote = DAILY_QUOTES[new Date().getDay() % DAILY_QUOTES.length]
 
   const completedHabits = habits.filter((h) => isCompletedToday(h.completions)).length
   const topStreak = habits.reduce((max, h) => Math.max(max, calculateStreak(h.completions)), 0)
@@ -39,9 +41,11 @@ export default function Dashboard({ habits, tasks, finance, logs, onNavigate }) 
     <div className="space-y-6">
       {/* Greeting */}
       <section className="mb-2">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-on-surface mb-2">{greeting}, Maks.</h1>
-        <p className="text-on-surface-variant italic max-w-md">"{quote}"</p>
+        <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-on-surface mb-2">{greeting}, Maks.</h1>
+        <p className="text-sm text-on-surface-variant italic max-w-md">"{quote}"</p>
       </section>
+
+      <QuoteBanner quote={QUOTES.dashboard} />
 
       {/* Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">

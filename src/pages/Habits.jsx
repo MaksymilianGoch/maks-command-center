@@ -4,6 +4,8 @@ import { calculateStreak, isCompletedToday, getCompletionRate } from '../utils/h
 import Button from '../components/Button'
 import Modal from '../components/Modal'
 import Toggle from '../components/Toggle'
+import QuoteBanner from '../components/QuoteBanner'
+import { QUOTES } from '../data/quotes'
 
 const CATEGORIES = ['fitness', 'learning', 'business', 'health', 'other']
 const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
@@ -62,6 +64,8 @@ export default function Habits({ habits, setHabits }) {
         <h1 className="text-3xl font-bold text-on-surface">Productivity Core</h1>
         <p className="text-on-surface-variant mt-1">Synthesizing daily performance and directive alignment.</p>
       </div>
+
+      <QuoteBanner quote={QUOTES.habits} />
 
       {/* Efficiency Chart */}
       <div className="glass-card rounded-2xl p-6">
