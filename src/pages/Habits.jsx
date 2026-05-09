@@ -4,8 +4,19 @@ import { calculateStreak, isCompletedToday, getCompletionRate } from '../utils/h
 import Button from '../components/Button'
 import Modal from '../components/Modal'
 import Toggle from '../components/Toggle'
+import SubNav from '../components/SubNav'
 import QuoteBanner from '../components/QuoteBanner'
 import { QUOTES } from '../data/quotes'
+import Gym from './extensions/Gym'
+import Nutrition from './extensions/Nutrition'
+import AITasks from './extensions/AITasks'
+
+const SUB_TABS = [
+  { id: 'overview',   label: 'Übersicht', short: 'Habits',   icon: 'rebase_edit' },
+  { id: 'gym',        label: 'Gym',       short: 'Gym',      icon: 'fitness_center' },
+  { id: 'nutrition',  label: 'Ernährung', short: 'Essen',    icon: 'restaurant' },
+  { id: 'aitasks',    label: 'AI Tasks',  short: 'AI',       icon: 'smart_toy' },
+]
 
 const CATEGORIES = ['fitness', 'learning', 'business', 'health', 'other']
 const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
@@ -20,6 +31,7 @@ const CAT_ICONS = {
 }
 
 export default function Habits({ habits, setHabits }) {
+  const [subTab, setSubTab] = useState('overview')
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editId, setEditId] = useState(null)
@@ -58,13 +70,20 @@ export default function Habits({ habits, setHabits }) {
   const completedCount = habits.filter((h) => isCompletedToday(h.completions)).length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="mb-2">
+      <div>
         <h1 className="text-3xl font-bold text-on-surface">Productivity Core</h1>
-        <p className="text-on-surface-variant mt-1">Synthesizing daily performance and directive alignment.</p>
+        <p className="text-on-surface-variant mt-1 text-sm">Synthesizing daily performance and directive alignment.</p>
       </div>
 
+      <SubNav tabs={SUB_TABS} active={subTab} onChange={setSubTab} />
+
+      {subTab === 'gym' && <Gym />}
+      {subTab === 'nutrition' && <Nutrition />}
+      {subTab === 'aitasks' && <AITasks />}
+
+      {subTab === 'overview' && <>
       <QuoteBanner quote={QUOTES.habits} />
 
       {/* Efficiency Chart */}
@@ -194,6 +213,7 @@ export default function Habits({ habits, setHabits }) {
           </div>
         </Modal>
       )}
+      </>}
     </div>
   )
 }

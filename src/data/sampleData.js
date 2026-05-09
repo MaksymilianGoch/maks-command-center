@@ -4,16 +4,23 @@ const d = (daysAgo) => {
   return date.toISOString().split('T')[0]
 }
 
-// 7 MAKS-Habits aus streaks.md
+// 10 MAKS-Habits
 export const sampleHabits = [
-  { id: 'h1', name: 'Schlaf vor 23:30', category: 'health', createdAt: d(10), completions: [d(8), d(7), d(6), d(5), d(4), d(3), d(1)] },
-  { id: 'h2', name: 'Morning Routine', category: 'other', createdAt: d(10), completions: [d(9), d(8), d(7), d(6), d(4), d(3), d(1), d(0)] },
-  { id: 'h3', name: 'Lernen 90 min', category: 'learning', createdAt: d(10), completions: [d(7), d(5), d(3), d(2), d(0)] },
-  { id: 'h4', name: 'Business 60 min', category: 'business', createdAt: d(10), completions: [d(8), d(6), d(5), d(4), d(3), d(1), d(0)] },
-  { id: 'h5', name: 'Bewegung 20 min', category: 'fitness', createdAt: d(10), completions: [d(9), d(7), d(5), d(4), d(2), d(1)] },
-  { id: 'h6', name: 'Kein SoMe vor 18 Uhr', category: 'health', createdAt: d(10), completions: [d(6), d(5), d(4), d(2), d(1), d(0)] },
-  { id: 'h7', name: 'Evening Reflection', category: 'other', createdAt: d(10), completions: [d(8), d(7), d(5), d(4), d(3), d(1)] },
+  { id: 'h1',  name: 'Gym',              category: 'fitness',  createdAt: d(14), completions: [d(7), d(5), d(3), d(1)] },
+  { id: 'h2',  name: '8h Schlaf',        category: 'health',   createdAt: d(14), completions: [d(8), d(7), d(6), d(5), d(4), d(3), d(1)] },
+  { id: 'h3',  name: 'Beten',            category: 'other',    createdAt: d(14), completions: [d(9), d(8), d(7), d(6), d(5), d(4), d(3), d(2), d(1), d(0)] },
+  { id: 'h4',  name: 'Lesen',            category: 'learning', createdAt: d(14), completions: [d(7), d(6), d(5), d(3), d(2), d(1), d(0)] },
+  { id: 'h5',  name: 'Business',         category: 'business', createdAt: d(14), completions: [d(8), d(6), d(5), d(4), d(3), d(1), d(0)] },
+  { id: 'h6',  name: 'Studium',          category: 'learning', createdAt: d(14), completions: [d(6), d(5), d(4), d(2), d(1)] },
+  { id: 'h7',  name: 'AI',               category: 'learning', createdAt: d(14), completions: [d(7), d(5), d(4), d(3), d(1), d(0)] },
+  { id: 'h8',  name: 'Uni lernen',       category: 'learning', createdAt: d(14), completions: [d(5), d(4), d(3), d(2)] },
+  { id: 'h9',  name: 'Clean gegessen',   category: 'health',   createdAt: d(14), completions: [d(8), d(7), d(6), d(5), d(4), d(3), d(2), d(1), d(0)] },
+  { id: 'h10', name: '2000–3000 kcal',   category: 'health',   createdAt: d(14), completions: [d(7), d(6), d(5), d(4), d(3), d(2), d(1)] },
 ]
+
+export const sampleWorkouts = []
+export const sampleNutrition = []
+export const sampleAITasks = []
 
 // Tasks — ONE Thing + max. 4
 export const sampleTasks = [

@@ -36,6 +36,7 @@ function DonutChart({ value, max }) {
 
 export default function Finance({ finance, setFinance }) {
   const [showModal, setShowModal] = useState(false)
+  const [editEntry, setEditEntry] = useState(null)
   const [form, setForm] = useState({ monthlyIncome: '', monthlyExpenses: '', savingsTotal: '' })
 
   const sorted = [...finance].sort((a, b) => b.date.localeCompare(a.date))
@@ -48,17 +49,38 @@ export default function Finance({ finance, setFinance }) {
   const monthsToGoal = monthlyNet > 0 ? Math.ceil(distance / monthlyNet) : null
   const savingsDiff = prev ? savings - prev.savingsTotal : null
 
+  const openNew = () => {
+    setEditEntry(null)
+    setForm({ monthlyIncome: '', monthlyExpenses: '', savingsTotal: '' })
+    setShowModal(true)
+  }
+
+  const openEdit = (entry) => {
+    setEditEntry(entry)
+    setForm({ monthlyIncome: entry.monthlyIncome, monthlyExpenses: entry.monthlyExpenses, savingsTotal: entry.savingsTotal })
+    setShowModal(true)
+  }
+
+  const deleteEntry = (id) => setFinance((prev) => prev.filter((f) => f.id !== id))
+
   const saveEntry = () => {
-    const entry = {
-      id: crypto.randomUUID(),
-      date: today().slice(0, 7) + '-01',
-      monthlyIncome: parseFloat(form.monthlyIncome) || 0,
-      monthlyExpenses: parseFloat(form.monthlyExpenses) || 0,
-      savingsTotal: parseFloat(form.savingsTotal) || 0,
+    if (editEntry) {
+      setFinance((prev) => prev.map((f) => f.id === editEntry.id
+        ? { ...f, monthlyIncome: parseFloat(form.monthlyIncome) || 0, monthlyExpenses: parseFloat(form.monthlyExpenses) || 0, savingsTotal: parseFloat(form.savingsTotal) || 0 }
+        : f))
+    } else {
+      const entry = {
+        id: crypto.randomUUID(),
+        date: today().slice(0, 7) + '-01',
+        monthlyIncome: parseFloat(form.monthlyIncome) || 0,
+        monthlyExpenses: parseFloat(form.monthlyExpenses) || 0,
+        savingsTotal: parseFloat(form.savingsTotal) || 0,
+      }
+      setFinance((prev) => [...prev.filter((f) => f.date !== entry.date), entry])
     }
-    setFinance((prev) => [...prev.filter((f) => f.date !== entry.date), entry])
     setShowModal(false)
     setForm({ monthlyIncome: '', monthlyExpenses: '', savingsTotal: '' })
+    setEditEntry(null)
   }
 
   return (
@@ -77,7 +99,7 @@ export default function Finance({ finance, setFinance }) {
             </span>
           )}
           <span className="text-on-surface-variant text-sm">vs. Vormonat</span>
-          <Button size="sm" onClick={() => setShowModal(true)}>Update</Button>
+          <Button size="sm" onClick={openNew}>+ Eintrag</Button>
         </div>
       </section>
 
@@ -162,12 +184,14 @@ export default function Finance({ finance, setFinance }) {
         <div className="glass-card rounded-2xl p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-semibold text-on-surface">Verlauf</h3>
+            <span className="text-xs text-on-surface-variant">Tippen zum Bearbeiten</span>
           </div>
           <div className="space-y-3">
-            {sorted.slice(0, 5).map((f) => {
+            {sorted.slice(0, 6).map((f) => {
               const net = f.monthlyIncome - f.monthlyExpenses
               return (
-                <div key={f.id} className="glass-card rounded-xl p-4 flex items-center justify-between hover:bg-surface-container-high transition-all cursor-pointer" style={{ padding: '1rem' }}>
+                <div key={f.id} onClick={() => openEdit(f)}
+                  className="glass-card rounded-xl flex items-center justify-between hover:bg-surface-container-high transition-all cursor-pointer group" style={{ padding: '1rem' }}>
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
                       <span className="material-symbols-outlined text-on-surface text-lg">savings</span>
@@ -175,15 +199,23 @@ export default function Finance({ finance, setFinance }) {
                     <div>
                       <p className="text-sm font-medium text-on-surface">{f.date.slice(0, 7)}</p>
                       <p className="text-xs text-on-surface-variant">
-                        {f.monthlyIncome.toLocaleString('de-DE')} € Einnahmen
+                        {f.monthlyIncome.toLocaleString('de-DE')} € · {f.monthlyExpenses.toLocaleString('de-DE')} €
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold text-on-surface">{f.savingsTotal.toLocaleString('de-DE')} €</p>
-                    <p className={`text-xs font-medium ${net >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {net >= 0 ? '+' : ''}{net.toLocaleString('de-DE')} €/Mo
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-on-surface">{f.savingsTotal.toLocaleString('de-DE')} €</p>
+                      <p className={`text-xs font-medium ${net >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {net >= 0 ? '+' : ''}{net.toLocaleString('de-DE')} €/Mo
+                      </p>
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="material-symbols-outlined text-primary text-lg">edit</span>
+                      <button onClick={(e) => { e.stopPropagation(); deleteEntry(f.id) }}>
+                        <span className="material-symbols-outlined text-red-400 text-lg">delete</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               )
@@ -193,7 +225,7 @@ export default function Finance({ finance, setFinance }) {
       )}
 
       {showModal && (
-        <Modal title="Monatliche Zahlen updaten" onClose={() => setShowModal(false)}>
+        <Modal title={editEntry ? `${editEntry.date.slice(0, 7)} bearbeiten` : 'Neuer Eintrag'} onClose={() => { setShowModal(false); setEditEntry(null) }}>
           <div className="space-y-4">
             {[
               { key: 'savingsTotal', label: 'Gesamtvermögen (€)', placeholder: '24500' },

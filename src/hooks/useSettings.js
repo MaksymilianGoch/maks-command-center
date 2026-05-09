@@ -5,7 +5,7 @@ const DEFAULTS = {
   language: 'de',
   theme: 'dark',
   weekStart: 'monday',
-  habitsMax: 7,
+  habitsMax: 10,
 }
 
 export function useSettings() {
@@ -26,7 +26,7 @@ export function useSettings() {
   const update = (key, value) => setSettings((p) => ({ ...p, [key]: value }))
 
   const resetData = () => {
-    const keys = ['maks_habits_v2', 'maks_tasks_v2', 'maks_finance_v2', 'maks_logs_v2']
+    const keys = ['maks_habits_v2', 'maks_tasks_v2', 'maks_finance_v2', 'maks_logs_v2', 'maks_workouts_v1', 'maks_nutrition_v1', 'maks_aitasks_v1']
     keys.forEach((k) => localStorage.removeItem(k))
     window.location.reload()
   }
