@@ -1,19 +1,19 @@
 const NAV = [
-  { id: 'dashboard', label: 'Dashboard', icon: '◉' },
-  { id: 'habits', label: 'Habits', icon: '◎' },
+  { id: 'dashboard', label: 'Dashboard', icon: '⊡' },
+  { id: 'habits', label: 'Habits', icon: '○' },
   { id: 'goals', label: 'Goals', icon: '◈' },
-  { id: 'dailylog', label: 'Daily Log', icon: '◧' },
-  { id: 'weeklyreview', label: 'Weekly Review', icon: '◫' },
+  { id: 'dailylog', label: 'Daily Log', icon: '✎' },
+  { id: 'weeklyreview', label: 'Weekly Review', icon: '↗' },
 ]
 
 export default function Sidebar({ current, onNavigate }) {
   return (
-    <aside className="w-56 flex-shrink-0 bg-zinc-950 border-r border-zinc-800 flex flex-col">
-      <div className="p-6 border-b border-zinc-800">
-        <div className="text-xs font-semibold text-indigo-400 tracking-widest uppercase mb-1">
+    <aside className="hidden md:flex w-56 flex-shrink-0 bg-[#191a1f] border-r border-[#323640] flex-col">
+      <div className="p-6 border-b border-[#323640]">
+        <div className="text-xs font-semibold text-[#4f86f7] tracking-widest uppercase mb-1">
           Command Center
         </div>
-        <div className="text-2xl font-bold text-zinc-50">MAKS</div>
+        <div className="text-2xl font-bold text-white">MAKS</div>
       </div>
 
       <nav className="flex-1 p-3 space-y-1">
@@ -21,10 +21,10 @@ export default function Sidebar({ current, onNavigate }) {
           <button
             key={item.id}
             onClick={() => onNavigate(item.id)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-left ${
               current === item.id
-                ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-600/30'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-transparent'
+                ? 'bg-[#4f86f7]/15 text-[#4f86f7] border border-[#4f86f7]/30'
+                : 'text-[#b0b7c2] hover:text-white hover:bg-[#22252e] border border-transparent'
             }`}
           >
             <span>{item.icon}</span>
@@ -33,8 +33,8 @@ export default function Sidebar({ current, onNavigate }) {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-zinc-800">
-        <div className="text-xs text-zinc-600">v1.0 MVP</div>
+      <div className="p-4 border-t border-[#323640]">
+        <div className="text-xs text-[#323640]">v1.0 MVP</div>
       </div>
     </aside>
   )

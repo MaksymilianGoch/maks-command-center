@@ -13,7 +13,6 @@ export default function Habits({ habits, setHabits }) {
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [editId, setEditId] = useState(null)
-
   const todayStr = today()
 
   const saveHabit = () => {
@@ -54,31 +53,21 @@ export default function Habits({ habits, setHabits }) {
   const completedCount = habits.filter((h) => isCompletedToday(h.completions)).length
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-50">Habits</h1>
-          <p className="text-sm text-zinc-400 mt-1">
-            {completedCount}/{habits.length} heute abgehakt
-          </p>
+          <h1 className="text-2xl font-bold text-white">Habits</h1>
+          <p className="text-sm text-[#b0b7c2] mt-1">{completedCount}/{habits.length} heute abgehakt</p>
         </div>
-        <Button
-          onClick={() => {
-            setForm(emptyForm)
-            setEditId(null)
-            setShowModal(true)
-          }}
-        >
-          + Habit hinzufügen
+        <Button onClick={() => { setForm(emptyForm); setEditId(null); setShowModal(true) }}>
+          + Habit
         </Button>
       </div>
 
       {habits.length === 0 ? (
         <Card className="text-center py-12">
-          <div className="text-zinc-600 text-4xl mb-3">◎</div>
-          <p className="text-zinc-400">
-            Noch keine Habits. Starte mit einer einfachen täglichen Gewohnheit.
-          </p>
+          <div className="text-[#323640] text-4xl mb-3">○</div>
+          <p className="text-[#b0b7c2]">Noch keine Habits. Starte mit einer einfachen täglichen Gewohnheit.</p>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -87,45 +76,35 @@ export default function Habits({ habits, setHabits }) {
             const rate = getCompletionRate(h.completions, h.createdAt)
             const done = isCompletedToday(h.completions)
             return (
-              <Card key={h.id} className={done ? 'opacity-70' : ''}>
-                <div className="flex items-center gap-4">
+              <Card key={h.id} className={done ? 'opacity-60' : ''}>
+                <div className="flex items-center gap-3">
                   <button
                     onClick={() => toggleToday(h.id)}
                     className={`w-6 h-6 rounded-full border-2 flex-shrink-0 transition-all ${
-                      done
-                        ? 'bg-green-500 border-green-500'
-                        : 'border-zinc-600 hover:border-green-500'
+                      done ? 'bg-emerald-500 border-emerald-500' : 'border-[#323640] hover:border-emerald-500'
                     }`}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span
-                        className={`text-sm font-medium ${
-                          done ? 'text-zinc-500 line-through' : 'text-zinc-100'
-                        }`}
-                      >
+                      <span className={`text-sm font-medium ${done ? 'text-[#b0b7c2] line-through' : 'text-white'}`}>
                         {h.name}
                       </span>
                       <Badge label={h.category} />
                     </div>
-                    <div className="flex items-center gap-4 mt-1">
-                      <span className="text-xs text-zinc-500">
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-xs">
                         {streak > 0 ? (
-                          <span className="text-amber-400">🔥 {streak} Tage Streak</span>
+                          <span className="text-amber-400">🔥 {streak} Tage</span>
                         ) : (
-                          'Kein aktiver Streak'
+                          <span className="text-[#b0b7c2]">Kein Streak</span>
                         )}
                       </span>
-                      <span className="text-xs text-zinc-500">Erfolgsrate: {rate}%</span>
+                      <span className="text-xs text-[#b0b7c2]">{rate}% Erfolg</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <Button variant="ghost" size="sm" onClick={() => openEdit(h)}>
-                      ✎
-                    </Button>
-                    <Button variant="danger" size="sm" onClick={() => deleteHabit(h.id)}>
-                      ✕
-                    </Button>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <Button variant="ghost" size="sm" onClick={() => openEdit(h)}>✎</Button>
+                    <Button variant="danger" size="sm" onClick={() => deleteHabit(h.id)}>✕</Button>
                   </div>
                 </div>
               </Card>
@@ -135,17 +114,12 @@ export default function Habits({ habits, setHabits }) {
       )}
 
       {showModal && (
-        <Modal
-          title={editId ? 'Habit bearbeiten' : 'Neuer Habit'}
-          onClose={() => setShowModal(false)}
-        >
+        <Modal title={editId ? 'Habit bearbeiten' : 'Neuer Habit'} onClose={() => setShowModal(false)}>
           <div className="space-y-4">
             <div>
-              <label className="text-xs text-zinc-400 uppercase tracking-wide block mb-1.5">
-                Name
-              </label>
+              <label className="text-xs text-[#b0b7c2] uppercase tracking-wide block mb-1.5">Name</label>
               <input
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-indigo-500"
+                className="w-full bg-[#191a1f] border border-[#323640] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#323640] focus:outline-none focus:border-[#4f86f7]"
                 placeholder="z.B. Täglich 30 Min. lesen"
                 value={form.name}
                 onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
@@ -154,18 +128,16 @@ export default function Habits({ habits, setHabits }) {
               />
             </div>
             <div>
-              <label className="text-xs text-zinc-400 uppercase tracking-wide block mb-1.5">
-                Kategorie
-              </label>
+              <label className="text-xs text-[#b0b7c2] uppercase tracking-wide block mb-1.5">Kategorie</label>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setForm((p) => ({ ...p, category: cat }))}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${
                       form.category === cat
-                        ? 'bg-indigo-600/30 border-indigo-500 text-indigo-300'
-                        : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500'
+                        ? 'bg-[#4f86f7]/20 border-[#4f86f7] text-[#4f86f7]'
+                        : 'bg-[#191a1f] border-[#323640] text-[#b0b7c2] hover:border-[#b0b7c2]'
                     }`}
                   >
                     {cat}
@@ -174,9 +146,7 @@ export default function Habits({ habits, setHabits }) {
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="secondary" onClick={() => setShowModal(false)}>
-                Abbrechen
-              </Button>
+              <Button variant="secondary" onClick={() => setShowModal(false)}>Abbrechen</Button>
               <Button onClick={saveHabit}>Speichern</Button>
             </div>
           </div>

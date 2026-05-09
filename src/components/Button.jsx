@@ -8,10 +8,10 @@ export default function Button({
   disabled = false,
 }) {
   const variants = {
-    primary: 'bg-indigo-600 hover:bg-indigo-500 text-white',
-    secondary: 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700',
-    danger: 'bg-red-900/30 hover:bg-red-900/50 text-red-400 border border-red-900/50',
-    ghost: 'hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200',
+    primary: 'bg-[#4f86f7] hover:bg-[#3a70e0] text-white',
+    secondary: 'bg-[#22252e] hover:bg-[#2a2e38] text-[#b0b7c2] border border-[#323640]',
+    danger: 'bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/40',
+    ghost: 'hover:bg-[#22252e] text-[#b0b7c2] hover:text-white',
   }
   const sizes = {
     sm: 'px-3 py-1.5 text-sm',
@@ -23,7 +23,7 @@ export default function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
     >
       {children}
     </button>
