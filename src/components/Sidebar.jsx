@@ -1,9 +1,9 @@
 const NAV = [
-  { id: 'dashboard',    label: 'Dashboard',     icon: '⊡' },
-  { id: 'habits',       label: 'Habits',         icon: '○' },
-  { id: 'goals',        label: 'Goals',          icon: '◈' },
-  { id: 'dailylog',     label: 'Daily Log',      icon: '✎' },
-  { id: 'weeklyreview', label: 'Weekly Review',  icon: '↗' },
+  { id: 'dashboard', label: 'Dashboard', icon: '⊡' },
+  { id: 'today',     label: 'Today',     icon: '✓' },
+  { id: 'habits',    label: 'Habits',    icon: '○' },
+  { id: 'finance',   label: 'Finance',   icon: '◈' },
+  { id: 'log',       label: 'Log',       icon: '✎' },
 ]
 
 export default function Sidebar({ current, onNavigate }) {
@@ -21,13 +21,12 @@ export default function Sidebar({ current, onNavigate }) {
                 ? 'bg-[#7c6af7]/15 text-[#7c6af7] border border-[#7c6af7]/30'
                 : 'text-[#9a9aaa] hover:text-white hover:bg-[#13141c] border border-transparent'
             }`}>
-            <span>{item.icon}</span>
-            {item.label}
+            <span>{item.icon}</span>{item.label}
           </button>
         ))}
       </nav>
       <div className="p-4 border-t border-[#1e2030]">
-        <div className="text-xs text-[#1e2030]">v1.0 MVP</div>
+        <div className="text-xs text-[#1e2030]">v2.0</div>
       </div>
     </aside>
   )
