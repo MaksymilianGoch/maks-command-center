@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { today, formatDate } from '../utils/dateUtils'
-import Card from '../components/Card'
-import Button from '../components/Button'
+import { calculateStreak } from '../utils/habitUtils'
 import Toggle from '../components/Toggle'
+import Button from '../components/Button'
+import RingProgress from '../components/RingProgress'
 
 const TOOLS = ['n8n', 'claude-code', 'cs-basics']
 
@@ -14,34 +15,16 @@ const emptyForm = {
   learningTool: '', learningTopic: '', learningBuilt: false, learningMin: 0, learningMode: 'aktiv',
 }
 
-function Slider({ label, value, onChange }) {
-  const color = value >= 8 ? 'text-emerald-400' : value >= 5 ? 'text-amber-400' : 'text-red-400'
-  return (
-    <div>
-      <div className="flex justify-between mb-1.5">
-        <label className="text-xs text-[#9a9aaa] uppercase tracking-wide">{label}</label>
-        <span className={`text-xl font-bold ${color}`}>{value}</span>
-      </div>
-      <input type="range" min={1} max={10} value={value} onChange={(e) => onChange(+e.target.value)} className="w-full accent-[#7c6af7]" />
-    </div>
-  )
-}
-
-function Field({ label, placeholder, value, onChange, rows = 2 }) {
-  return (
-    <div>
-      <label className="text-xs text-[#9a9aaa] uppercase tracking-wide block mb-1.5">{label}</label>
-      <textarea className="w-full bg-[#080810] border border-[#1e1e2e] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#2a2a3e] focus:outline-none focus:border-[#7c6af7] resize-none" rows={rows} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} />
-    </div>
-  )
-}
-
-export default function Log({ logs, setLogs }) {
+export default function Log({ logs, setLogs, habits }) {
   const todayStr = today()
   const existing = logs.find((l) => l.date === todayStr)
   const [form, setForm] = useState(existing || { ...emptyForm })
   const [saved, setSaved] = useState(!!existing)
   const [expanded, setExpanded] = useState(null)
+
+  const topStreak = habits
+    ? habits.reduce((max, h) => Math.max(max, calculateStreak(h.completions)), 0)
+    : 0
 
   const s = (key, val) => setForm((p) => ({ ...p, [key]: val }))
 
@@ -57,66 +40,112 @@ export default function Log({ logs, setLogs }) {
   const past = logs.filter((l) => l.date !== todayStr).sort((a, b) => b.date.localeCompare(a.date))
 
   return (
-    <div className="p-4 md:p-6 space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Daily Log</h1>
-        <p className="text-sm text-[#9a9aaa] mt-1">
-          {new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}
-        </p>
-      </div>
+    <div className="space-y-6">
+      {/* Header — adapted from Study Center */}
+      <section className="space-y-1">
+        <p className="text-xs font-medium text-primary uppercase tracking-[0.2em]">Daily Log</p>
+        <h1 className="text-3xl font-bold text-on-surface">Stay sharp, Maks.</h1>
+      </section>
 
-      <Card>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-sm font-semibold text-white">Performance</h2>
-          {saved && <span className="text-xs text-emerald-400">✓ Gespeichert</span>}
+      {/* Streak + Today Status */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div className="md:col-span-4 glass-card rounded-2xl p-6 flex flex-col justify-between min-h-[180px] relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 text-7xl">🔥</div>
+          <div className="space-y-1">
+            <span className="text-tertiary text-2xl">🔥</span>
+            <h3 className="text-sm text-on-surface-variant">Top Streak</h3>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-5xl font-bold text-on-surface">{topStreak}</span>
+            <span className="text-xl text-on-surface-variant">Tage</span>
+          </div>
+          <p className="text-xs text-tertiary">Kein "fast geschafft".</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-5 mb-5">
-          <Slider label="Energie" value={form.energyLevel} onChange={(v) => s('energyLevel', v)} />
-          <Slider label="Disziplin" value={form.disciplineLevel} onChange={(v) => s('disciplineLevel', v)} />
+        {/* Energy Ring */}
+        <div className="md:col-span-8 glass-card rounded-2xl p-6 flex items-center justify-between gap-6">
+          <div className="space-y-3">
+            <h3 className="text-xl font-semibold text-on-surface">Performance heute</h3>
+            <p className="text-sm text-on-surface-variant">Energie & Disziplin</p>
+            <div className="flex gap-3">
+              {!saved && (
+                <Button onClick={save} size="sm">Speichern</Button>
+              )}
+              {saved && <span className="text-sm text-green-400 flex items-center gap-1"><span className="material-symbols-outlined text-sm">check_circle</span> Gespeichert</span>}
+            </div>
+          </div>
+          <RingProgress value={form.energyLevel} max={10} size={120} strokeWidth={10} color="#aac7ff">
+            <span className="text-2xl font-bold text-on-surface">{form.energyLevel}</span>
+            <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">Energie</span>
+          </RingProgress>
+        </div>
+      </div>
+
+      {/* Main Log Form */}
+      <div className="glass-card rounded-2xl p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-on-surface">Tageseintrag</h2>
+          {saved && <span className="text-sm text-green-400">✓ Gespeichert</span>}
+        </div>
+
+        {/* Energie + Disziplin Sliders */}
+        <div className="grid grid-cols-2 gap-6 mb-6">
+          {[{ key: 'energyLevel', label: 'Energie' }, { key: 'disciplineLevel', label: 'Disziplin' }].map(({ key, label }) => {
+            const val = form[key]
+            const color = val >= 8 ? 'text-green-400' : val >= 5 ? 'text-tertiary' : 'text-red-400'
+            return (
+              <div key={key}>
+                <div className="flex justify-between mb-2">
+                  <label className="text-xs text-on-surface-variant uppercase tracking-wide">{label}</label>
+                  <span className={`text-xl font-bold ${color}`}>{val}</span>
+                </div>
+                <input type="range" min={1} max={10} value={val}
+                  onChange={(e) => s(key, +e.target.value)}
+                  className="w-full accent-primary" />
+              </div>
+            )
+          })}
         </div>
 
         {/* Health */}
-        <div className="border-t border-[#1e1e2e] pt-4 mb-4">
-          <div className="text-xs text-[#9a9aaa] uppercase tracking-widest mb-3">Health</div>
-          <div className="space-y-3">
+        <div className="border-t border-white/10 pt-5 mb-5">
+          <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-4">Health</p>
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Toggle checked={form.sleepBefore2330} onChange={() => s('sleepBefore2330', !form.sleepBefore2330)} size="sm" />
-                <span className="text-sm text-white">Schlaf vor 23:30</span>
+                <span className="text-sm text-on-surface">Schlaf vor 23:30</span>
               </div>
               <div className="flex items-center gap-2">
                 <input type="number" min={0} max={12} step={0.5}
-                  className="w-16 bg-[#080810] border border-[#1e1e2e] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-[#7c6af7] text-center"
+                  className="w-16 bg-surface-container-low border border-white/10 rounded-xl px-2 py-1 text-xs text-on-surface focus:outline-none focus:border-primary/50 text-center"
                   value={form.sleepHours} onChange={(e) => s('sleepHours', +e.target.value)} />
-                <span className="text-xs text-[#9a9aaa]">h</span>
+                <span className="text-xs text-on-surface-variant">h</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Toggle checked={form.workout} onChange={() => s('workout', !form.workout)} size="sm" />
-                <span className="text-sm text-white">Bewegung</span>
+                <span className="text-sm text-on-surface">Bewegung</span>
               </div>
               {form.workout && (
                 <div className="flex items-center gap-2">
                   <input type="number" min={0} max={180}
-                    className="w-16 bg-[#080810] border border-[#1e1e2e] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-[#7c6af7] text-center"
+                    className="w-16 bg-surface-container-low border border-white/10 rounded-xl px-2 py-1 text-xs text-on-surface focus:outline-none focus:border-primary/50 text-center"
                     value={form.workoutMin} onChange={(e) => s('workoutMin', +e.target.value)} />
-                  <span className="text-xs text-[#9a9aaa]">min</span>
+                  <span className="text-xs text-on-surface-variant">min</span>
                 </div>
               )}
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white">Ernährung</span>
+              <span className="text-sm text-on-surface">Ernährung</span>
               <div className="flex gap-2">
                 {['gut', 'ok', 'schlecht'].map((q) => (
                   <button key={q} onClick={() => s('nutritionQuality', q)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                       form.nutritionQuality === q
-                        ? q === 'gut' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
-                          : q === 'ok' ? 'bg-amber-500/20 border-amber-500 text-amber-400'
-                          : 'bg-red-500/20 border-red-500 text-red-400'
-                        : 'bg-[#080810] border-[#1e1e2e] text-[#9a9aaa]'
+                        ? q === 'gut' ? 'bg-green-500/20 text-green-400' : q === 'ok' ? 'bg-tertiary/20 text-tertiary' : 'bg-red-500/20 text-red-400'
+                        : 'bg-surface-container text-on-surface-variant'
                     }`}>{q}
                   </button>
                 ))}
@@ -126,92 +155,94 @@ export default function Log({ logs, setLogs }) {
         </div>
 
         {/* Learning */}
-        <div className="border-t border-[#1e1e2e] pt-4 mb-4">
-          <div className="text-xs text-[#9a9aaa] uppercase tracking-widest mb-3">Learning</div>
-          <div className="space-y-3">
-            <div>
-              <div className="text-xs text-[#9a9aaa] mb-1.5">Tool</div>
-              <div className="flex gap-2 flex-wrap">
-                <button onClick={() => s('learningTool', '')}
-                  className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${!form.learningTool ? 'bg-[#1e2030] border-[#9a9aaa] text-white' : 'bg-[#080810] border-[#1e1e2e] text-[#9a9aaa]'}`}>
-                  Keines
-                </button>
-                {TOOLS.map((t) => (
-                  <button key={t} onClick={() => s('learningTool', t)}
-                    className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${form.learningTool === t ? 'bg-[#7c6af7]/20 border-[#7c6af7] text-[#7c6af7]' : 'bg-[#080810] border-[#1e1e2e] text-[#9a9aaa]'}`}>
-                    {t}
+        <div className="border-t border-white/10 pt-5 mb-5">
+          <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-4">Learning</p>
+          <div className="flex gap-2 flex-wrap mb-3">
+            <button onClick={() => s('learningTool', '')}
+              className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${!form.learningTool ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'}`}>
+              Keines
+            </button>
+            {TOOLS.map((t) => (
+              <button key={t} onClick={() => s('learningTool', t)}
+                className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${form.learningTool === t ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'}`}>
+                {t}
+              </button>
+            ))}
+          </div>
+          {form.learningTool && (
+            <div className="space-y-3">
+              <input className="w-full bg-surface-container-low border border-white/10 rounded-2xl px-4 py-3 text-sm text-on-surface placeholder-outline focus:outline-none focus:border-primary/50"
+                placeholder="Thema / Was gelernt?" value={form.learningTopic} onChange={(e) => s('learningTopic', e.target.value)} />
+              <div className="flex items-center gap-4 flex-wrap">
+                <label className="flex items-center gap-2">
+                  <Toggle checked={form.learningBuilt} onChange={() => s('learningBuilt', !form.learningBuilt)} size="sm" />
+                  <span className="text-xs text-on-surface">Etwas gebaut</span>
+                </label>
+                <div className="flex items-center gap-2 ml-auto">
+                  <input type="number" min={0} max={300}
+                    className="w-16 bg-surface-container-low border border-white/10 rounded-xl px-2 py-1 text-xs text-on-surface focus:outline-none text-center"
+                    value={form.learningMin} onChange={(e) => s('learningMin', +e.target.value)} />
+                  <span className="text-xs text-on-surface-variant">min</span>
+                </div>
+                {['aktiv', 'passiv'].map((m) => (
+                  <button key={m} onClick={() => s('learningMode', m)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${form.learningMode === m ? m === 'aktiv' ? 'bg-green-500/20 text-green-400' : 'bg-tertiary/20 text-tertiary' : 'bg-surface-container text-on-surface-variant'}`}>
+                    {m}
                   </button>
                 ))}
               </div>
             </div>
-            {form.learningTool && (
-              <>
-                <input className="w-full bg-[#080810] border border-[#1e1e2e] rounded-xl px-3 py-2 text-sm text-white placeholder-[#2a2a3e] focus:outline-none focus:border-[#7c6af7]"
-                  placeholder="Thema / Was gelernt?" value={form.learningTopic} onChange={(e) => s('learningTopic', e.target.value)} />
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Toggle checked={form.learningBuilt} onChange={() => s('learningBuilt', !form.learningBuilt)} size="sm" />
-                    <span className="text-xs text-white">Etwas gebaut</span>
-                  </div>
-                  <div className="flex items-center gap-2 ml-auto">
-                    <input type="number" min={0} max={300}
-                      className="w-16 bg-[#080810] border border-[#1e1e2e] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-[#7c6af7] text-center"
-                      value={form.learningMin} onChange={(e) => s('learningMin', +e.target.value)} />
-                    <span className="text-xs text-[#9a9aaa]">min</span>
-                  </div>
-                  <div className="flex gap-1">
-                    {['aktiv', 'passiv'].map((m) => (
-                      <button key={m} onClick={() => s('learningMode', m)}
-                        className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${form.learningMode === m ? m === 'aktiv' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-amber-500/20 border-amber-500 text-amber-400' : 'bg-[#080810] border-[#1e1e2e] text-[#9a9aaa]'}`}>
-                        {m}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Reflexion */}
-        <div className="border-t border-[#1e1e2e] pt-4 space-y-3">
-          <div className="text-xs text-[#9a9aaa] uppercase tracking-widest mb-1">Reflexion</div>
-          <Field label="Was war stark?" placeholder="Erfolge, gute Entscheidungen …" value={form.strongPoints} onChange={(v) => s('strongPoints', v)} />
-          <Field label="Was war schwach?" placeholder="Fehler, Ablenkungen …" value={form.weakPoints} onChange={(v) => s('weakPoints', v)} />
-          <Field label="ONE Thing morgen" placeholder="Eine konkrete Sache" value={form.tomorrowFocus} onChange={(v) => s('tomorrowFocus', v)} rows={1} />
-          <Field label="Notiz" placeholder="Wie war der Tag insgesamt?" value={form.note} onChange={(v) => s('note', v)} />
+        <div className="border-t border-white/10 pt-5 space-y-4">
+          <p className="text-xs text-on-surface-variant uppercase tracking-widest">Reflexion</p>
+          {[
+            { key: 'strongPoints', label: 'Was war stark?', placeholder: 'Erfolge, gute Entscheidungen …' },
+            { key: 'weakPoints', label: 'Was war schwach?', placeholder: 'Fehler, Ablenkungen …' },
+            { key: 'tomorrowFocus', label: 'ONE Thing morgen', placeholder: 'Konkrete nächste Sache' },
+            { key: 'note', label: 'Notiz', placeholder: 'Wie war der Tag?' },
+          ].map(({ key, label, placeholder }) => (
+            <div key={key}>
+              <label className="text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">{label}</label>
+              <textarea className="w-full bg-surface-container-low border border-white/10 rounded-2xl px-4 py-3 text-sm text-on-surface placeholder-outline focus:outline-none focus:border-primary/50 resize-none"
+                rows={2} placeholder={placeholder} value={form[key]} onChange={(e) => s(key, e.target.value)} />
+            </div>
+          ))}
         </div>
 
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-5">
           <Button onClick={save} size="lg">Speichern</Button>
         </div>
-      </Card>
+      </div>
 
+      {/* Past entries */}
       {past.length > 0 && (
-        <div>
-          <h2 className="text-sm font-semibold text-white mb-3">Vergangene Einträge</h2>
-          <div className="space-y-2">
-            {past.map((l) => (
-              <Card key={l.id} onClick={() => setExpanded(expanded === l.date ? null : l.date)}>
+        <div className="glass-card rounded-2xl p-6">
+          <h2 className="text-xl font-semibold text-on-surface mb-4">Vergangene Einträge</h2>
+          <div className="space-y-3">
+            {past.slice(0, 5).map((l) => (
+              <div key={l.id} onClick={() => setExpanded(expanded === l.date ? null : l.date)}
+                className="bg-surface-container-low rounded-2xl p-4 cursor-pointer hover:bg-surface-container transition-all border border-white/5">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-white">{formatDate(l.date)}</span>
-                  <div className="flex gap-3 text-xs text-[#9a9aaa]">
-                    <span className={l.energyLevel >= 7 ? 'text-emerald-400' : l.energyLevel >= 5 ? 'text-amber-400' : 'text-red-400'}>E:{l.energyLevel}</span>
-                    <span className={l.disciplineLevel >= 7 ? 'text-emerald-400' : l.disciplineLevel >= 5 ? 'text-amber-400' : 'text-red-400'}>D:{l.disciplineLevel}</span>
-                    {l.sleepBefore2330 && <span className="text-emerald-400">Schlaf✓</span>}
-                    {l.workout && <span className="text-emerald-400">Sport✓</span>}
-                    {l.learningTool && <span className={l.learningMode === 'aktiv' ? 'text-[#7c6af7]' : 'text-amber-400'}>{l.learningTool}</span>}
+                  <span className="text-sm font-medium text-on-surface">{formatDate(l.date)}</span>
+                  <div className="flex gap-3 text-xs">
+                    <span className={l.energyLevel >= 7 ? 'text-green-400' : l.energyLevel >= 5 ? 'text-tertiary' : 'text-red-400'}>E:{l.energyLevel}</span>
+                    <span className={l.disciplineLevel >= 7 ? 'text-green-400' : l.disciplineLevel >= 5 ? 'text-tertiary' : 'text-red-400'}>D:{l.disciplineLevel}</span>
+                    {l.sleepBefore2330 && <span className="text-green-400">Schlaf✓</span>}
+                    {l.learningTool && <span className={l.learningMode === 'aktiv' ? 'text-primary' : 'text-tertiary'}>{l.learningTool}</span>}
+                    <span className="text-on-surface-variant">{expanded === l.date ? '▲' : '▼'}</span>
                   </div>
                 </div>
                 {expanded === l.date && (
-                  <div className="mt-3 pt-3 border-t border-[#1e1e2e] space-y-1.5">
-                    {l.strongPoints && <p className="text-xs text-[#9a9aaa]"><span className="text-emerald-400">+ </span>{l.strongPoints}</p>}
-                    {l.weakPoints && <p className="text-xs text-[#9a9aaa]"><span className="text-red-400">− </span>{l.weakPoints}</p>}
-                    {l.tomorrowFocus && <p className="text-xs text-[#9a9aaa]"><span className="text-[#7c6af7]">→ </span>{l.tomorrowFocus}</p>}
-                    {l.note && <p className="text-xs text-[#9a9aaa] mt-1">{l.note}</p>}
+                  <div className="mt-3 pt-3 border-t border-white/10 space-y-1.5">
+                    {l.strongPoints && <p className="text-xs text-on-surface-variant"><span className="text-green-400">+ </span>{l.strongPoints}</p>}
+                    {l.weakPoints && <p className="text-xs text-on-surface-variant"><span className="text-red-400">− </span>{l.weakPoints}</p>}
+                    {l.tomorrowFocus && <p className="text-xs text-on-surface-variant"><span className="text-primary">→ </span>{l.tomorrowFocus}</p>}
                   </div>
                 )}
-              </Card>
+              </div>
             ))}
           </div>
         </div>

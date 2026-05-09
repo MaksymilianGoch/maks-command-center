@@ -1,16 +1,21 @@
 import { useState } from 'react'
 import { today } from '../utils/dateUtils'
 import { calculateStreak, isCompletedToday, getCompletionRate } from '../utils/habitUtils'
-import Card from '../components/Card'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
-import Badge from '../components/Badge'
 import Toggle from '../components/Toggle'
-import RingProgress from '../components/RingProgress'
 
 const CATEGORIES = ['fitness', 'learning', 'business', 'health', 'other']
+const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
 const emptyForm = { name: '', category: 'other' }
-const DAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+
+const CAT_ICONS = {
+  fitness: { icon: 'fitness_center', bg: 'bg-primary/10', color: 'text-primary' },
+  learning: { icon: 'book_2', bg: 'bg-tertiary/10', color: 'text-tertiary' },
+  business: { icon: 'business_center', bg: 'bg-primary/10', color: 'text-primary' },
+  health: { icon: 'water_drop', bg: 'bg-blue-400/10', color: 'text-blue-400' },
+  other: { icon: 'self_improvement', bg: 'bg-purple-400/10', color: 'text-purple-400' },
+}
 
 export default function Habits({ habits, setHabits }) {
   const [showModal, setShowModal] = useState(false)
@@ -24,6 +29,7 @@ export default function Habits({ habits, setHabits }) {
   const weeklyDone = last7.map((date) => habits.filter((h) => h.completions.includes(date)).length)
   const weekMax = habits.length || 1
   const todayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1
+  const weeklyPct = habits.length > 0 ? Math.round((weeklyDone.reduce((a, b) => a + b, 0) / (weekMax * 7)) * 100) : 0
 
   const saveHabit = () => {
     if (!form.name.trim()) return
@@ -47,109 +53,131 @@ export default function Habits({ habits, setHabits }) {
 
   const deleteHabit = (id) => setHabits((prev) => prev.filter((h) => h.id !== id))
   const openEdit = (h) => { setForm({ name: h.name, category: h.category }); setEditId(h.id); setShowModal(true) }
-
   const completedCount = habits.filter((h) => isCompletedToday(h.completions)).length
 
   return (
-    <div className="p-4 md:p-6 space-y-4 max-w-lg mx-auto md:max-w-none">
-      <div className="flex items-start justify-between pt-2">
-        <div>
-          <p className="text-xs text-[#4a4a6a] uppercase tracking-widest mb-1">Productivity Core</p>
-          <h1 className="text-2xl font-bold text-white">Habit Hub</h1>
-          <p className="text-xs text-[#4a4a6a] mt-1">Tägliche Gewohnheiten • Max. 7</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="mb-2">
+        <h1 className="text-3xl font-bold text-on-surface">Productivity Core</h1>
+        <p className="text-on-surface-variant mt-1">Synthesizing daily performance and directive alignment.</p>
+      </div>
+
+      {/* Efficiency Chart */}
+      <div className="glass-card rounded-2xl p-6">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h2 className="text-xl font-semibold text-on-surface">Operational Efficiency</h2>
+            <p className="text-sm text-on-surface-variant">Weekly analytical breakdown</p>
+          </div>
+          <div className="bg-surface-container px-3 py-1 rounded-full text-xs text-primary flex items-center gap-1">
+            <span className="material-symbols-outlined text-sm">trending_up</span>
+            {weeklyPct}%
+          </div>
+        </div>
+        <div className="h-32 flex items-end gap-2 px-2">
+          {weeklyDone.map((count, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+              <div
+                className={`w-full rounded-t-md transition-all ${i === todayIdx ? 'bg-primary shadow-[0_0_12px_rgba(170,199,255,0.4)]' : 'bg-primary/20 hover:bg-primary/40'}`}
+                style={{ height: `${Math.max(4, (count / weekMax) * 100)}%` }}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-between mt-2">
+          {DAYS.map((d, i) => (
+            <span key={i} className={`flex-1 text-center text-[10px] font-medium ${i === todayIdx ? 'text-primary' : 'text-on-surface-variant opacity-50'}`}>{d}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Critical Directives — ONE Thing */}
+      <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6">
+        <div className="flex items-center gap-2 text-primary mb-4">
+          <span className="material-symbols-outlined">priority_high</span>
+          <h2 className="text-xs font-bold uppercase tracking-widest">Critical Directives</h2>
+        </div>
+        <div className="space-y-3 mb-5">
+          <div className="flex items-start gap-3">
+            <span className="material-symbols-outlined text-primary mt-0.5">check_circle</span>
+            <p className="text-sm text-on-surface">Alle 7 Habits täglich abarbeiten.</p>
+          </div>
+          <div className="flex items-start gap-3 opacity-60">
+            <span className="material-symbols-outlined text-on-surface-variant mt-0.5">radio_button_unchecked</span>
+            <p className="text-sm text-on-surface">{completedCount}/{habits.length} heute abgehakt.</p>
+          </div>
         </div>
         {habits.length < 7 && (
-          <Button size="sm" onClick={() => { setForm(emptyForm); setEditId(null); setShowModal(true) }}>+ Habit</Button>
+          <button onClick={() => { setForm(emptyForm); setEditId(null); setShowModal(true) }}
+            className="w-full bg-primary text-on-primary py-3 rounded-full text-sm font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+            Neuer Habit
+            <span className="material-symbols-outlined text-sm">add</span>
+          </button>
         )}
       </div>
 
-      {/* Stats + Ring */}
-      <Card glow>
-        <div className="flex items-center gap-4">
-          <RingProgress value={completedCount} max={habits.length || 1} size={80} strokeWidth={7} color="#7c6af7">
-            <span className="text-sm font-bold text-white">{completedCount}/{habits.length}</span>
-          </RingProgress>
-          <div className="flex-1">
-            <div className="text-xs text-[#4a4a6a] mb-2">Letzte 7 Tage</div>
-            <div className="flex items-end gap-1 h-8">
-              {weeklyDone.map((count, i) => (
-                <div key={i} className="flex flex-col items-center gap-0.5 flex-1">
-                  <div
-                    className={`w-full rounded-sm transition-all ${i === todayIdx ? 'bg-[#7c6af7]' : count > 0 ? 'bg-[#7c6af7]/40' : 'bg-[#1e1e2e]'}`}
-                    style={{ height: `${Math.max(3, (count / weekMax) * 28)}px` }}
-                  />
-                  <span className="text-[9px] text-[#4a4a6a]">{DAYS[i]}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* Daily Habits List */}
+      <div className="glass-card rounded-2xl p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-on-surface">Daily Habits</h2>
+          <span className="text-sm text-primary">{habits.length - completedCount} von {habits.length} verbleibend</span>
         </div>
-      </Card>
-
-      {/* Habit List */}
-      <div>
-        <div className="text-xs text-[#4a4a6a] uppercase tracking-widest mb-3">
-          Daily Habits · {completedCount} von {habits.length} erledigt
-        </div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {habits.map((h) => {
             const done = isCompletedToday(h.completions)
             const streak = calculateStreak(h.completions)
-            const rate = getCompletionRate(h.completions, h.createdAt)
+            const cat = CAT_ICONS[h.category] || CAT_ICONS.other
             return (
-              <Card key={h.id} className={done ? 'opacity-70' : ''}>
-                <div className="flex items-center gap-3">
-                  <Toggle checked={done} onChange={() => toggleToday(h.id)} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm font-medium ${done ? 'text-[#4a4a6a] line-through' : 'text-white'}`}>{h.name}</span>
-                      <Badge label={h.category} />
-                    </div>
-                    <div className="flex gap-3 mt-0.5">
-                      {streak > 0
-                        ? <span className="text-xs text-amber-400">🔥 {streak}d</span>
-                        : <span className="text-xs text-[#4a4a6a]">kein Streak</span>
-                      }
-                      <span className="text-xs text-[#4a4a6a]">{rate}%</span>
-                    </div>
+              <div key={h.id}
+                className="bg-surface-container-low p-4 rounded-2xl border border-white/5 flex items-center justify-between hover:border-primary/20 transition-all group">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-full ${cat.bg} flex items-center justify-center ${cat.color}`}>
+                    <span className="material-symbols-outlined text-lg">{cat.icon}</span>
                   </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => openEdit(h)} className="text-[#4a4a6a] hover:text-white text-xs px-1.5 py-1 transition-colors">✎</button>
-                    <button onClick={() => deleteHabit(h.id)} className="text-[#4a4a6a] hover:text-red-400 text-xs px-1.5 py-1 transition-colors">✕</button>
+                  <div>
+                    <h3 className={`text-sm font-medium ${done ? 'text-on-surface-variant line-through' : 'text-on-surface'}`}>{h.name}</h3>
+                    <p className="text-xs text-on-surface-variant">
+                      {streak > 0 ? `🔥 ${streak}d Streak` : 'Kein Streak'} · {getCompletionRate(h.completions, h.createdAt)}%
+                    </p>
                   </div>
                 </div>
-              </Card>
+                <div className="flex items-center gap-2">
+                  <div className="hidden group-hover:flex gap-1">
+                    <button onClick={() => openEdit(h)} className="text-on-surface-variant hover:text-on-surface text-xs p-1">✎</button>
+                    <button onClick={() => deleteHabit(h.id)} className="text-on-surface-variant hover:text-red-400 text-xs p-1">✕</button>
+                  </div>
+                  <Toggle checked={done} onChange={() => toggleToday(h.id)} />
+                </div>
+              </div>
             )
           })}
+          {habits.length === 0 && (
+            <p className="text-on-surface-variant text-sm text-center py-6">Noch keine Habits. Max. 7 — wenige, aber konsequent.</p>
+          )}
         </div>
       </div>
 
-      {habits.length === 0 && (
-        <Card className="text-center py-10">
-          <p className="text-[#4a4a6a] text-sm">Keine Habits. Max. 7 — wenige, aber konsequent.</p>
-        </Card>
-      )}
       {habits.length >= 7 && (
-        <p className="text-xs text-amber-400 text-center">Maximum erreicht — mehr ist Performance-Theater.</p>
+        <p className="text-xs text-tertiary text-center">Maximum 7 Habits — mehr ist Performance-Theater.</p>
       )}
 
       {showModal && (
         <Modal title={editId ? 'Habit bearbeiten' : 'Neuer Habit'} onClose={() => setShowModal(false)}>
           <div className="space-y-4">
             <div>
-              <label className="text-xs text-[#9a9aaa] uppercase tracking-wide block mb-1.5">Name</label>
-              <input
-                className="w-full bg-[#080810] border border-[#2a2a3e] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#2a2a3e] focus:outline-none focus:border-[#7c6af7]"
+              <label className="text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">Name</label>
+              <input className="w-full bg-surface-container-low border border-white/10 rounded-2xl px-4 py-3 text-sm text-on-surface placeholder-outline focus:outline-none focus:border-primary/50"
                 placeholder="z.B. Lernen 90 min" value={form.name}
                 onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
                 autoFocus onKeyDown={(e) => e.key === 'Enter' && saveHabit()} />
             </div>
             <div>
-              <label className="text-xs text-[#9a9aaa] uppercase tracking-wide block mb-1.5">Kategorie</label>
+              <label className="text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">Kategorie</label>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map((cat) => (
                   <button key={cat} onClick={() => setForm((p) => ({ ...p, category: cat }))}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${form.category === cat ? 'bg-[#7c6af7]/20 border-[#7c6af7] text-[#7c6af7]' : 'bg-[#080810] border-[#2a2a3e] text-[#9a9aaa] hover:border-[#9a9aaa]'}`}>
+                    className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${form.category === cat ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}`}>
                     {cat}
                   </button>
                 ))}

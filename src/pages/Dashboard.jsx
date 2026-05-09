@@ -1,14 +1,20 @@
 import { today } from '../utils/dateUtils'
 import { calculateStreak, isCompletedToday } from '../utils/habitUtils'
-import Card from '../components/Card'
 import RingProgress from '../components/RingProgress'
 import ProgressBar from '../components/ProgressBar'
 
 const QUOTES = [
-  'Complexity is the enemy of execution.',
+  'Complexity is the enemy of execution. Simple is where the magic lives.',
   'Disziplin ist Freiheit.',
   'Du bist eine Stimme, nicht ein Echo.',
   'Wer die Ruhe bewahrt, gewinnt.',
+]
+
+const ACTIONS = [
+  { id: 'today',   label: 'Today',   sub: 'Tasks & Focus',  icon: 'check_circle',    bg: 'bg-primary/10',   color: 'text-primary' },
+  { id: 'log',     label: 'Log',     sub: 'Reflection time', icon: 'edit_note',      bg: 'bg-tertiary/10',  color: 'text-tertiary' },
+  { id: 'habits',  label: 'Habits',  sub: 'Check streaks',   icon: 'rebase_edit',    bg: 'bg-secondary/10', color: 'text-secondary' },
+  { id: 'finance', label: 'Finance', sub: 'Review growth',   icon: 'analytics',      bg: 'bg-primary/10',   color: 'text-primary-container' },
 ]
 
 export default function Dashboard({ habits, tasks, finance, logs, onNavigate }) {
@@ -17,129 +23,116 @@ export default function Dashboard({ habits, tasks, finance, logs, onNavigate }) 
   const greeting = hour < 12 ? 'Guten Morgen' : hour < 18 ? 'Guten Tag' : 'Guten Abend'
   const quote = QUOTES[new Date().getDay() % QUOTES.length]
 
-  const todayLog = logs.find((l) => l.date === todayStr)
-  const topTask = tasks.find((t) => t.isTop && !t.done && t.date === todayStr)
   const completedHabits = habits.filter((h) => isCompletedToday(h.completions)).length
   const topStreak = habits.reduce((max, h) => Math.max(max, calculateStreak(h.completions)), 0)
   const todayTasks = tasks.filter((t) => t.date === todayStr)
   const doneTasks = todayTasks.filter((t) => t.done).length
+  const topTask = tasks.find((t) => t.isTop && !t.done && t.date === todayStr)
 
   const latestFinance = [...finance].sort((a, b) => b.date.localeCompare(a.date))[0]
   const savings = latestFinance?.savingsTotal ?? 0
   const pct500k = Math.min(100, Math.round((savings / 500000) * 100))
 
-  // Weekly habit completion (last 7 days)
-  const last7 = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d.toISOString().split('T')[0]
-  })
-  const weeklyDone = last7.map((date) => habits.filter((h) => h.completions.includes(date)).length)
-  const weeklyMax = habits.length || 1
-  const weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
-  const today7idx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1
+  const weeklyPct = habits.length > 0 ? Math.round((completedHabits / habits.length) * 100) : 0
 
   return (
-    <div className="p-4 md:p-6 space-y-4 max-w-lg mx-auto md:max-w-none">
-      {/* Header */}
-      <div className="pt-2 pb-1">
-        <p className="text-xs text-[#4a4a6a] uppercase tracking-widest mb-1">
-          {new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}
-        </p>
-        <h1 className="text-3xl font-bold text-white mb-1">{greeting}, Maks.</h1>
-        <p className="text-sm text-[#4a4a6a] italic">"{quote}"</p>
-      </div>
+    <div className="space-y-6">
+      {/* Greeting */}
+      <section className="mb-2">
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-on-surface mb-2">{greeting}, Maks.</h1>
+        <p className="text-on-surface-variant italic max-w-md">"{quote}"</p>
+      </section>
 
-      {/* Weekly Focus — Ring Progress */}
-      <Card glow>
-        <div className="flex items-center gap-4">
-          <RingProgress value={completedHabits} max={habits.length || 1} size={88} strokeWidth={7} color="#7c6af7">
-            <span className="text-xl font-bold text-white">{Math.round((completedHabits / (habits.length || 1)) * 100)}%</span>
+      {/* Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Weekly Focus Ring */}
+        <div className="md:col-span-4 glass-card rounded-2xl p-8 flex flex-col items-center justify-center text-center">
+          <h3 className="text-xs font-medium text-on-surface-variant mb-6 uppercase tracking-widest">Weekly Focus</h3>
+          <RingProgress value={completedHabits} max={habits.length || 1} size={160} strokeWidth={12} color="#aac7ff" trackColor="rgba(255,255,255,0.05)">
+            <span className="text-3xl font-bold text-on-surface">{weeklyPct}%</span>
+            <span className="text-xs text-on-surface-variant">Complete</span>
           </RingProgress>
-          <div className="flex-1">
-            <div className="text-xs text-[#4a4a6a] uppercase tracking-widest mb-1">Weekly Focus</div>
-            <div className="text-base font-semibold text-white">{completedHabits} / {habits.length} Habits</div>
-            <div className="text-xs text-[#9a9aaa] mt-0.5">Streak Top: {topStreak} Tage 🔥</div>
-          </div>
-          <div className="flex gap-1 items-end h-10">
-            {weeklyDone.map((count, i) => (
-              <div key={i} className="flex flex-col items-center gap-0.5">
-                <div
-                  className={`w-4 rounded-sm transition-all ${i === today7idx ? 'bg-[#7c6af7]' : count > 0 ? 'bg-[#7c6af7]/40' : 'bg-[#1e1e2e]'}`}
-                  style={{ height: `${Math.max(3, (count / weeklyMax) * 32)}px` }}
-                />
-              </div>
-            ))}
-          </div>
+          <p className="text-base text-on-surface mt-6">
+            {completedHabits} / {habits.length} Habits · Streak {topStreak}d 🔥
+          </p>
         </div>
-      </Card>
 
-      {/* ONE Thing */}
-      {topTask && (
-        <Card className="border-[#7c6af7]/25 bg-[#7c6af7]/5 shadow-[0_0_20px_rgba(124,106,247,0.1)]">
-          <div className="text-xs text-[#7c6af7] uppercase tracking-widest mb-2 font-semibold">ONE Thing heute</div>
-          <p className="text-base font-semibold text-white">{topTask.text}</p>
-          <button onClick={() => onNavigate('today')} className="text-xs text-[#7c6af7] mt-2 hover:text-white transition-colors">
-            Alle Tasks →
-          </button>
-        </Card>
-      )}
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-3">
-        <Card onClick={() => onNavigate('today')} className="text-center py-5">
-          <div className="text-2xl mb-2">✓</div>
-          <div className="text-sm font-semibold text-white">{doneTasks}/{todayTasks.length}</div>
-          <div className="text-xs text-[#4a4a6a] mt-0.5">Tasks heute</div>
-        </Card>
-        <Card onClick={() => onNavigate('habits')} className="text-center py-5">
-          <div className="text-2xl mb-2">◎</div>
-          <div className="text-sm font-semibold text-white">{completedHabits}/{habits.length}</div>
-          <div className="text-xs text-[#4a4a6a] mt-0.5">Habits</div>
-        </Card>
-        <Card onClick={() => onNavigate('finance')} className="text-center py-5">
-          <div className="text-2xl mb-2">◈</div>
-          <div className="text-sm font-semibold text-white">{pct500k}%</div>
-          <div className="text-xs text-[#4a4a6a] mt-0.5">zu 500k</div>
-        </Card>
-        <Card onClick={() => onNavigate('log')} className="text-center py-5">
-          <div className="text-2xl mb-2">≡</div>
-          <div className={`text-sm font-semibold ${todayLog ? 'text-emerald-400' : 'text-[#4a4a6a]'}`}>
-            {todayLog ? `${todayLog.energyLevel}/10` : '—'}
-          </div>
-          <div className="text-xs text-[#4a4a6a] mt-0.5">Energie</div>
-        </Card>
+        {/* Quick Actions 2x2 */}
+        <div className="md:col-span-8 grid grid-cols-2 gap-4">
+          {ACTIONS.map((a) => (
+            <div key={a.id} onClick={() => onNavigate(a.id)}
+              className="glass-card rounded-2xl p-6 hover:bg-surface-container-high transition-all cursor-pointer group">
+              <div className={`w-12 h-12 rounded-full ${a.bg} flex items-center justify-center mb-4 ${a.color} group-hover:scale-110 transition-transform`}>
+                <span className="material-symbols-outlined">{a.icon}</span>
+              </div>
+              <h4 className="text-xl font-semibold text-on-surface mb-1">{a.label}</h4>
+              <p className="text-sm text-on-surface-variant">{a.sub}</p>
+              {a.id === 'today' && todayTasks.length > 0 && (
+                <p className="text-xs text-primary mt-2">{doneTasks}/{todayTasks.length} erledigt</p>
+              )}
+              {a.id === 'finance' && (
+                <p className="text-xs text-primary mt-2">{pct500k}% zu 500k</p>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Finance Snapshot */}
-      <Card onClick={() => onNavigate('finance')}>
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-xs text-[#4a4a6a] uppercase tracking-widest">500k Ziel</div>
-          <span className="text-xs text-[#7c6af7]">{pct500k}% erreicht</span>
+      {/* ONE Thing + Finance Banner */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* ONE Thing */}
+        <div className="glass-card rounded-2xl p-6">
+          <p className="text-xs font-medium text-primary uppercase tracking-[0.2em] mb-3">ONE Thing heute</p>
+          {topTask ? (
+            <>
+              <h2 className="text-xl font-semibold text-on-surface mb-2">{topTask.text}</h2>
+              <button onClick={() => onNavigate('today')}
+                className="bg-primary text-on-primary px-6 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-all flex items-center gap-2">
+                Öffnen
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-on-surface-variant mb-3">Noch kein ONE Thing für heute gesetzt.</p>
+              <button onClick={() => onNavigate('today')}
+                className="bg-primary text-on-primary px-6 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-all">
+                Today öffnen →
+              </button>
+            </>
+          )}
         </div>
-        <div className="text-2xl font-bold text-white mb-3">
-          {(500000 - savings).toLocaleString('de-DE')} <span className="text-sm text-[#4a4a6a]">€ noch</span>
-        </div>
-        <ProgressBar value={savings} max={500000} colorClass="bg-gradient-to-r from-[#7c6af7] to-[#a78bfa]" />
-      </Card>
 
-      {/* Habit Snapshot */}
-      <Card>
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-xs text-[#4a4a6a] uppercase tracking-widest">Heutige Habits</div>
-          <button onClick={() => onNavigate('habits')} className="text-xs text-[#7c6af7]">Alle →</button>
+        {/* Finance Snapshot */}
+        <div className="glass-card rounded-2xl p-6" onClick={() => onNavigate('finance')} style={{ cursor: 'pointer' }}>
+          <p className="text-xs font-medium text-on-surface-variant uppercase tracking-widest mb-2">500k Ziel</p>
+          <div className="text-3xl font-bold text-on-surface mb-1">{savings.toLocaleString('de-DE')} €</div>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="flex items-center text-primary text-sm bg-primary/10 px-3 py-1 rounded-full">
+              <span className="material-symbols-outlined text-sm mr-1">trending_up</span>
+              {pct500k}%
+            </span>
+            <span className="text-on-surface-variant text-sm">von 500.000 €</span>
+          </div>
+          <div className="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+            <div className="h-full rounded-full bg-gradient-to-r from-primary to-primary-container" style={{ width: `${pct500k}%` }} />
+          </div>
         </div>
-        <div className="space-y-2">
-          {habits.slice(0, 5).map((h) => {
-            const done = isCompletedToday(h.completions)
-            return (
-              <div key={h.id} className="flex items-center gap-3">
-                <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${done ? 'bg-[#7c6af7]' : 'bg-[#2a2a3e]'}`} />
-                <span className={`text-sm flex-1 truncate ${done ? 'text-[#4a4a6a] line-through' : 'text-white'}`}>{h.name}</span>
-                {done && <span className="text-xs text-[#7c6af7]">✓</span>}
-              </div>
-            )
-          })}
+      </div>
+
+      {/* Inspiration Card */}
+      <section className="relative w-full rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-surface-container to-surface-container-high p-8">
+        <div className="max-w-lg">
+          <span className="text-xs font-medium text-primary mb-3 block uppercase tracking-[0.2em]">Dein System</span>
+          <h2 className="text-2xl md:text-3xl font-semibold text-on-surface mb-3">Produktivität ist keine Emotion. Sie ist ein System.</h2>
+          <p className="text-on-surface-variant mb-5">Habits → Log → Review → Repeat.</p>
+          <button onClick={() => onNavigate('log')}
+            className="bg-primary text-on-primary px-8 py-3 rounded-full text-sm font-medium hover:opacity-90 transition-all flex items-center gap-2 group/btn">
+            Log öffnen
+            <span className="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+          </button>
         </div>
-      </Card>
+      </section>
     </div>
   )
 }

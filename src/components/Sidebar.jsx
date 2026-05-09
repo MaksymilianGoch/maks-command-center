@@ -1,33 +1,34 @@
 const NAV = [
-  { id: 'dashboard', label: 'Home',    icon: '⌂' },
-  { id: 'today',     label: 'Today',   icon: '✓' },
-  { id: 'habits',    label: 'Habits',  icon: '◎' },
-  { id: 'finance',   label: 'Finance', icon: '◈' },
-  { id: 'log',       label: 'Log',     icon: '≡' },
+  { id: 'dashboard', label: 'Home',    icon: 'dashboard' },
+  { id: 'today',     label: 'Today',   icon: 'check_circle' },
+  { id: 'habits',    label: 'Habits',  icon: 'rebase_edit' },
+  { id: 'finance',   label: 'Finance', icon: 'payments' },
+  { id: 'log',       label: 'Log',     icon: 'timer' },
 ]
 
 export default function Sidebar({ current, onNavigate }) {
   return (
-    <aside className="hidden md:flex w-56 flex-shrink-0 bg-[#080810] border-r border-[#1e1e2e] flex-col">
-      <div className="p-6 border-b border-[#1e1e2e]">
-        <div className="text-xs font-semibold text-[#7c6af7] tracking-widest uppercase mb-1">Command Center</div>
-        <div className="text-2xl font-bold text-white">MAKS</div>
+    <aside className="hidden md:flex w-60 flex-shrink-0 bg-surface/80 backdrop-blur-xl border-r border-white/10 flex-col">
+      <div className="p-6 border-b border-white/10 flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">M</div>
+        <span className="text-lg font-bold tracking-tight text-on-surface">MAKS</span>
       </div>
       <nav className="flex-1 p-3 space-y-1">
         {NAV.map((item) => (
           <button key={item.id} onClick={() => onNavigate(item.id)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all text-left ${
               current === item.id
-                ? 'bg-[#7c6af7]/15 text-[#7c6af7] border border-[#7c6af7]/30 shadow-[0_0_15px_rgba(124,106,247,0.1)]'
-                : 'text-[#9a9aaa] hover:text-white hover:bg-[#1a1a2e] border border-transparent'
+                ? 'bg-primary/10 text-primary'
+                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
             }`}>
-            <span className="text-base">{item.icon}</span>{item.label}
+            <span className="material-symbols-outlined text-[20px]"
+              style={current === item.id ? { fontVariationSettings: "'FILL' 1" } : {}}>
+              {item.icon}
+            </span>
+            {item.label}
           </button>
         ))}
       </nav>
-      <div className="p-4 border-t border-[#1e1e2e]">
-        <div className="text-xs text-[#2a2a3e]">v2.0</div>
-      </div>
     </aside>
   )
 }

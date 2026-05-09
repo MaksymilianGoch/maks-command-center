@@ -20,7 +20,7 @@ export default function App() {
     today:     <Today tasks={tasks} setTasks={setTasks} />,
     habits:    <Habits habits={habits} setHabits={setHabits} />,
     finance:   <Finance finance={finance} setFinance={setFinance} />,
-    log:       <Log logs={logs} setLogs={setLogs} />,
+    log:       <Log logs={logs} setLogs={setLogs} habits={habits} />,
   }
 
   return (

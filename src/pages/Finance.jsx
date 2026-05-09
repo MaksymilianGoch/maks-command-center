@@ -1,34 +1,32 @@
 import { useState } from 'react'
 import { today } from '../utils/dateUtils'
-import Card from '../components/Card'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
-import RingProgress from '../components/RingProgress'
 
 const TARGET = 500000
 
-function DonutChart({ value, max, size = 140, label, sublabel }) {
+function DonutChart({ value, max }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0
-  const r = 52; const cx = size / 2; const cy = size / 2
-  const circumference = 2 * Math.PI * r
-  const dash = (pct / 100) * circumference
+  const r = 52; const cx = 70; const cy = 70
+  const c = 2 * Math.PI * r
+  const dash = (pct / 100) * c
   return (
-    <div className="relative inline-flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="absolute">
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#1e1e2e" strokeWidth={10} />
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="url(#grad)" strokeWidth={10}
-          strokeLinecap="round" strokeDasharray={`${dash} ${circumference - dash}`}
-          transform={`rotate(-90 ${cx} ${cy})`} />
+    <div className="relative inline-flex items-center justify-center flex-shrink-0" style={{ width: 140, height: 140 }}>
+      <svg width={140} height={140} className="absolute">
         <defs>
-          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#7c6af7" />
-            <stop offset="100%" stopColor="#a78bfa" />
+          <linearGradient id="donut-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#aac7ff" />
+            <stop offset="100%" stopColor="#3e90ff" />
           </linearGradient>
         </defs>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#31353d" strokeWidth={12} />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="url(#donut-grad)" strokeWidth={12}
+          strokeLinecap="round" strokeDasharray={`${dash} ${c - dash}`}
+          transform={`rotate(-90 ${cx} ${cy})`} />
       </svg>
       <div className="relative z-10 text-center">
-        <div className="text-2xl font-bold text-white">{Math.round(pct)}%</div>
-        <div className="text-xs text-[#4a4a6a]">{sublabel}</div>
+        <div className="text-2xl font-bold text-on-surface">{Math.round(pct)}%</div>
+        <div className="text-xs text-on-surface-variant">erreicht</div>
       </div>
     </div>
   )
@@ -49,102 +47,149 @@ export default function Finance({ finance, setFinance }) {
   const savingsDiff = prev ? savings - prev.savingsTotal : null
 
   const saveEntry = () => {
-    const entry = { id: crypto.randomUUID(), date: today().slice(0, 7) + '-01', monthlyIncome: parseFloat(form.monthlyIncome) || 0, monthlyExpenses: parseFloat(form.monthlyExpenses) || 0, savingsTotal: parseFloat(form.savingsTotal) || 0 }
+    const entry = {
+      id: crypto.randomUUID(),
+      date: today().slice(0, 7) + '-01',
+      monthlyIncome: parseFloat(form.monthlyIncome) || 0,
+      monthlyExpenses: parseFloat(form.monthlyExpenses) || 0,
+      savingsTotal: parseFloat(form.savingsTotal) || 0,
+    }
     setFinance((prev) => [...prev.filter((f) => f.date !== entry.date), entry])
     setShowModal(false)
     setForm({ monthlyIncome: '', monthlyExpenses: '', savingsTotal: '' })
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-4 max-w-lg mx-auto md:max-w-none">
-      <div className="flex items-start justify-between pt-2">
-        <div>
-          <p className="text-xs text-[#4a4a6a] uppercase tracking-widest mb-1">Finanzen</p>
-          <h1 className="text-3xl font-bold text-white">500k Ziel</h1>
+    <div className="space-y-6">
+      {/* Hero Balance */}
+      <section className="text-center py-4">
+        <p className="text-xs font-medium text-on-surface-variant uppercase tracking-widest mb-2">Gesamtvermögen</p>
+        <h1 className="text-5xl font-bold tracking-tight text-on-surface mb-4">
+          {savings.toLocaleString('de-DE')} €
+        </h1>
+        <div className="flex justify-center items-center gap-3">
+          {savingsDiff !== null && (
+            <span className={`flex items-center text-sm px-3 py-1 rounded-full ${savingsDiff >= 0 ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+              <span className="material-symbols-outlined text-sm mr-1">{savingsDiff >= 0 ? 'trending_up' : 'trending_down'}</span>
+              {savingsDiff >= 0 ? '+' : ''}{savingsDiff.toLocaleString('de-DE')} €
+            </span>
+          )}
+          <span className="text-on-surface-variant text-sm">vs. Vormonat</span>
+          <Button size="sm" onClick={() => setShowModal(true)}>Update</Button>
         </div>
-        <Button size="sm" onClick={() => setShowModal(true)}>Update</Button>
+      </section>
+
+      {/* Income / Expenses */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="glass-card rounded-2xl p-5 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-full text-lg">arrow_downward</span>
+            <span className="text-xs text-on-surface-variant">Einnahmen</span>
+          </div>
+          <p className="text-2xl font-semibold text-on-surface mt-2">{(latest?.monthlyIncome ?? 0).toLocaleString('de-DE')} €</p>
+        </div>
+        <div className="glass-card rounded-2xl p-5 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="material-symbols-outlined text-tertiary bg-tertiary/10 p-2 rounded-full text-lg">arrow_upward</span>
+            <span className="text-xs text-on-surface-variant">Ausgaben</span>
+          </div>
+          <p className="text-2xl font-semibold text-on-surface mt-2">{(latest?.monthlyExpenses ?? 0).toLocaleString('de-DE')} €</p>
+        </div>
       </div>
 
-      {/* Hero Balance */}
-      <Card glow>
-        <div className="flex items-center gap-5">
-          <DonutChart value={savings} max={TARGET} sublabel="erreicht" />
-          <div className="flex-1">
-            <div className="text-xs text-[#4a4a6a] uppercase tracking-widest mb-1">Gespartes Vermögen</div>
-            <div className="text-3xl font-bold text-white mb-1">{savings.toLocaleString('de-DE')} €</div>
-            {savingsDiff !== null && (
-              <div className={`text-sm font-semibold ${savingsDiff >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                {savingsDiff >= 0 ? '+' : ''}{savingsDiff.toLocaleString('de-DE')} € vs. Vormonat
+      {/* Donut + Goal */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div className="glass-card rounded-2xl p-6 md:col-span-3">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-semibold text-on-surface">500k Ziel</h3>
+            <span className="text-xs text-on-surface-variant">Fortschritt</span>
+          </div>
+          <div className="flex items-center justify-around gap-6">
+            <DonutChart value={savings} max={TARGET} />
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-primary" />
+                <span className="text-sm text-on-surface-variant">Gespart</span>
+                <span className="text-sm font-bold ml-auto">{savings.toLocaleString('de-DE')} €</span>
               </div>
-            )}
-            <div className="text-xs text-[#4a4a6a] mt-1">
-              Noch <span className="text-white font-semibold">{distance.toLocaleString('de-DE')} €</span> bis 500k
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-surface-variant" />
+                <span className="text-sm text-on-surface-variant">Verbleibend</span>
+                <span className="text-sm font-bold ml-auto">{distance.toLocaleString('de-DE')} €</span>
+              </div>
+              {monthlyNet > 0 && (
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full bg-tertiary" />
+                  <span className="text-sm text-on-surface-variant">Netto/Mo</span>
+                  <span className="text-sm font-bold ml-auto text-green-400">+{monthlyNet.toLocaleString('de-DE')} €</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
-        {monthsToGoal && (
-          <div className="mt-3 pt-3 border-t border-[#1e1e2e] flex justify-between text-xs text-[#4a4a6a]">
-            <span>Tempo bei aktuellem Netto</span>
-            <span className="text-white font-semibold">~{monthsToGoal} Monate</span>
-          </div>
-        )}
-      </Card>
 
-      {/* Monthly Stats */}
-      {latest && (
-        <div className="grid grid-cols-2 gap-3">
-          <Card>
-            <div className="text-xs text-[#4a4a6a] uppercase tracking-widest mb-2">Einnahmen</div>
-            <div className="text-2xl font-bold text-emerald-400">{latest.monthlyIncome.toLocaleString('de-DE')} €</div>
-            <div className="text-xs text-[#4a4a6a] mt-1">diesen Monat</div>
-          </Card>
-          <Card>
-            <div className="text-xs text-[#4a4a6a] uppercase tracking-widest mb-2">Ausgaben</div>
-            <div className="text-2xl font-bold text-red-400">{latest.monthlyExpenses.toLocaleString('de-DE')} €</div>
-            <div className="text-xs text-[#4a4a6a] mt-1">diesen Monat</div>
-          </Card>
-          <Card>
-            <div className="text-xs text-[#4a4a6a] uppercase tracking-widest mb-2">Netto / Monat</div>
-            <div className={`text-2xl font-bold ${monthlyNet >= 0 ? 'text-[#7c6af7]' : 'text-red-400'}`}>
-              {monthlyNet >= 0 ? '+' : ''}{monthlyNet.toLocaleString('de-DE')} €
+        <div className="glass-card rounded-2xl p-6 md:col-span-2 flex flex-col justify-between">
+          <div>
+            <h3 className="text-xl font-semibold text-on-surface mb-2">Tempo-Kalkulation</h3>
+            <p className="text-sm text-on-surface-variant">Bei aktuellem Netto-Sparrate</p>
+          </div>
+          <div className="mt-6">
+            <div className="flex justify-between items-end mb-3">
+              <span className="text-4xl font-bold text-on-surface">
+                {monthsToGoal ? `~${monthsToGoal}` : '∞'}
+              </span>
+              <span className="text-sm text-on-surface-variant">Monate</span>
             </div>
-            <div className="text-xs text-[#4a4a6a] mt-1">Sparrate</div>
-          </Card>
-          <Card>
-            <div className="text-xs text-[#4a4a6a] uppercase tracking-widest mb-2">Gesamt</div>
-            <div className="text-2xl font-bold text-white">{pct}%</div>
-            <div className="text-xs text-[#4a4a6a] mt-1">von 500k</div>
-          </Card>
+            <div className="w-full bg-surface-variant h-3 rounded-full overflow-hidden">
+              <div className="h-full rounded-full bg-gradient-to-r from-primary to-primary-container" style={{ width: `${pct}%` }} />
+            </div>
+            {monthsToGoal && (
+              <p className="text-xs text-primary mt-3 flex items-center gap-1">
+                <span className="material-symbols-outlined text-sm">info</span>
+                {Math.ceil(monthsToGoal / 12)} Jahre bis zum Ziel
+              </p>
+            )}
+          </div>
         </div>
-      )}
+      </div>
 
       {/* Verlauf */}
-      {sorted.length > 1 && (
-        <Card>
-          <div className="text-xs text-[#4a4a6a] uppercase tracking-widest mb-3">Verlauf</div>
-          <div className="space-y-2">
+      {sorted.length > 0 && (
+        <div className="glass-card rounded-2xl p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold text-on-surface">Verlauf</h3>
+          </div>
+          <div className="space-y-3">
             {sorted.slice(0, 5).map((f) => {
               const net = f.monthlyIncome - f.monthlyExpenses
-              const p = Math.round((f.savingsTotal / TARGET) * 100)
               return (
-                <div key={f.id} className="flex items-center gap-3 py-1.5 border-b border-[#1e1e2e] last:border-0">
-                  <span className="text-xs text-[#4a4a6a] w-16">{f.date.slice(0, 7)}</span>
-                  <div className="flex-1 h-1 bg-[#1e1e2e] rounded-full overflow-hidden">
-                    <div className="h-full bg-[#7c6af7]/60 rounded-full" style={{ width: `${p}%` }} />
+                <div key={f.id} className="glass-card rounded-xl p-4 flex items-center justify-between hover:bg-surface-container-high transition-all cursor-pointer" style={{ padding: '1rem' }}>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+                      <span className="material-symbols-outlined text-on-surface text-lg">savings</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-on-surface">{f.date.slice(0, 7)}</p>
+                      <p className="text-xs text-on-surface-variant">
+                        {f.monthlyIncome.toLocaleString('de-DE')} € Einnahmen
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-xs text-white w-20 text-right">{f.savingsTotal.toLocaleString('de-DE')} €</span>
-                  <span className={`text-xs font-semibold w-16 text-right ${net >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {net >= 0 ? '+' : ''}{net.toLocaleString('de-DE')}
-                  </span>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-on-surface">{f.savingsTotal.toLocaleString('de-DE')} €</p>
+                    <p className={`text-xs font-medium ${net >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {net >= 0 ? '+' : ''}{net.toLocaleString('de-DE')} €/Mo
+                    </p>
+                  </div>
                 </div>
               )
             })}
           </div>
-        </Card>
+        </div>
       )}
 
       {showModal && (
-        <Modal title="Monatliche Zahlen" onClose={() => setShowModal(false)}>
+        <Modal title="Monatliche Zahlen updaten" onClose={() => setShowModal(false)}>
           <div className="space-y-4">
             {[
               { key: 'savingsTotal', label: 'Gesamtvermögen (€)', placeholder: '24500' },
@@ -152,10 +197,11 @@ export default function Finance({ finance, setFinance }) {
               { key: 'monthlyExpenses', label: 'Ausgaben (€)', placeholder: '1800' },
             ].map(({ key, label, placeholder }) => (
               <div key={key}>
-                <label className="text-xs text-[#9a9aaa] uppercase tracking-wide block mb-1.5">{label}</label>
+                <label className="text-xs text-on-surface-variant uppercase tracking-wide block mb-1.5">{label}</label>
                 <input type="number"
-                  className="w-full bg-[#080810] border border-[#2a2a3e] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#2a2a3e] focus:outline-none focus:border-[#7c6af7]"
-                  placeholder={placeholder} value={form[key]} onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))} />
+                  className="w-full bg-surface-container-low border border-white/10 rounded-2xl px-4 py-3 text-sm text-on-surface placeholder-outline focus:outline-none focus:border-primary/50"
+                  placeholder={placeholder} value={form[key]}
+                  onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))} />
               </div>
             ))}
             <div className="flex justify-end gap-2 pt-2">
